@@ -7,9 +7,13 @@ public class ChatBotUtil {
     }
 
     public static void introSequence(){
-        String greet = "Hello from\n" + logoGen() + "what can I do for you today";
+        String greet = "Hello from\n";
+        String greet2 = "what can I do for you today \n";
         System.out.println(greet);
         linesep();
+        System.out.println(logoGen());
+        linesep();
+        System.out.println(greet2);
     }
 
     public static void exitSequence() {

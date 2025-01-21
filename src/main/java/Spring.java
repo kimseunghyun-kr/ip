@@ -1,12 +1,11 @@
-import static util.ChatBotUtil.*;
+import runtime.BotRunTime;
 
 public class Spring {
 
 
     public static void main(String[] args) {
-        linesep();
-        introSequence();
-        exitSequence();
+        BotRunTime botRunTime = new BotRunTime();
+        botRunTime.run();
     }
 
 
