@@ -15,17 +15,14 @@ public class Spring {
         container.register(TaskService.class);
         container.register(ActionHandler.class);
         container.register(CommandFactory.class);
+        container.register(BotRunTime.class); // Register BotRunTime
 
 
         // Pre-initialize all dependencies
         container.initialize();
 
-        // Resolve the runtime components
-        TaskService taskService = container.resolve(TaskService.class);
-        ActionHandler actionHandler = container.resolve(ActionHandler.class);
-
         // Start the runtime
-        BotRunTime botRunTime = new BotRunTime(taskService, actionHandler);
+        BotRunTime botRunTime = container.resolve(BotRunTime.class);
         botRunTime.run();
     }
 }
