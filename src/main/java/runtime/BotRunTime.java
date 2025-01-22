@@ -1,14 +1,24 @@
 package runtime;
 
-import repository.ItineraryRepository;
+import entity.Actions;
+import entity.Command.Command;
+import entity.Command.TerminationCommand;
+import service.TaskService;
 
 import java.util.Scanner;
 
 import static util.ChatBotUtil.*;
 
 public class BotRunTime {
-    ItineraryRepository itineraryRepository = new ItineraryRepository();
+    private final TaskService taskService;
+    private final ActionHandler actionHandler;
     Scanner scanner = new Scanner(System.in);
+
+    public BotRunTime(TaskService taskService, ActionHandler actionHandler) {
+        this.taskService = taskService;
+        this.actionHandler = actionHandler;
+    }
+
     public void run(){
         linesep();
         introSequence();
@@ -16,15 +26,10 @@ public class BotRunTime {
             linesep();
             String input = scanner.nextLine();
             linesep();
-            String response;
-            if(input.equals("bye")) {
+            Command command = actionHandler.resolveAction(input);
+            if(command instanceof TerminationCommand) {
                 break;
-            } if(input.equals("list")) {
-                response = itineraryRepository.getAll();
-            } else {
-                response = itineraryRepository.store(input);
             }
-            System.out.println(response);
         }
         exitSequence();
     }
