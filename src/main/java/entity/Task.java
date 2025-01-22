@@ -1,8 +1,23 @@
 package entity;
 
+
 public class Task {
     private String name;
     private Boolean isCompleted;
+
+    public Task(String name) {
+        this.name = name;
+        this.isCompleted = false;
+    }
+
+    public void toggleCompleted() {
+        isCompleted = !isCompleted;
+    }
+
+    public String rename(String newName){
+        this.name = newName;
+        return newName;
+    }
 
     @Override
     public String toString() {
@@ -16,4 +31,11 @@ public class Task {
         return builder.toString();
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public Boolean getCompleted() {
+        return isCompleted;
+    }
 }
