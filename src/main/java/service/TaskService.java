@@ -1,9 +1,12 @@
 package service;
 
 import DIContainer.Proxiable;
-import entity.Task;
+import entity.TaskType;
+import entity.tasks.Task;
+import entity.tasks.TaskFactory;
 import repository.ITaskRepository;
-import repository.TaskRepository;
+
+import java.util.List;
 
 public class TaskService implements Proxiable {
     private final ITaskRepository taskRepository;
@@ -48,8 +51,10 @@ public class TaskService implements Proxiable {
         return taskRepository.getAll();
     }
 
-    public String addTask(String taskName){
-        Task newTask = new Task(taskName);
+    public String addTask(List<String> taskParams){
+        TaskType taskType = TaskType.valueOf(taskParams.getFirst().toUpperCase());
+        taskParams.removeFirst();
+        Task newTask = TaskFactory.createTask(taskType, taskParams);
         String response = taskRepository.store(newTask);
         String header = "Nice! I have added this task \n";
         return header + response + "\n";

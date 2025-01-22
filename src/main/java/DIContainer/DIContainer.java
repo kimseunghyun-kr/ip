@@ -3,13 +3,13 @@ package DIContainer;
 import DIContainer.AOPInterfaces.AnnotationInterfaces.ProxyEnabled;
 import DIContainer.AOPInterfaces.Interceptor;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Proxy;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.lang.reflect.Modifier;
+import java.net.URL;
+import java.util.*;
 
 
 public class DIContainer {
@@ -21,28 +21,145 @@ public class DIContainer {
 
 
     public void register(Class<?> type) {
-        // Ensure the interface is annotated with @ProxyEnabled
-        if (type.isInterface() && type.isAnnotationPresent(ProxyEnabled.class)) {
-            // Get the implementation class from the annotation
-            proxyEnabledClasses.add(type);
-            ProxyEnabled proxyEnabled = type.getAnnotation(ProxyEnabled.class);
-            Class<?> implementation = proxyEnabled.implementation();
-            // Map the interface to the implementation
-            registrations.put(type, implementation);
-            type = implementation; // Register the implementation
+        // 1) Check if `type` is an interface or abstract class
+        if (type.isInterface() || Modifier.isAbstract(type.getModifiers())) {
+
+            // a) If it's explicitly annotated with @ProxyEnabled, treat that like a primary
+            if (type.isAnnotationPresent(ProxyEnabled.class)) {
+                ProxyEnabled proxyEnabled = type.getAnnotation(ProxyEnabled.class);
+                Class<?> implClass = proxyEnabled.implementation();
+                if (implClass == null) {
+                    throw new IllegalStateException(
+                            "@ProxyEnabled on " + type.getName() + " is missing an implementation class."
+                    );
+                }
+
+                // Map the interface -> the chosen implementation
+                registrations.put(type, implClass);
+
+                // Mark the interface as proxy-eligible
+                proxyEnabledClasses.add(type);
+
+                // Build the dependency graph for the chosen impl
+                buildDependencyGraph(implClass);
+
+            } else {
+                // b) Otherwise, auto-discover implementing classes
+                Set<Class<?>> implementations = findImplementations(type);
+                if (implementations.isEmpty()) {
+                    throw new RuntimeException(
+                            "No implementations found for " + type.getName()
+                    );
+                }
+
+                // If only one, register it directly
+                if (implementations.size() == 1) {
+                    Class<?> singleImpl = implementations.iterator().next();
+                    registrations.put(type, singleImpl);
+                    buildDependencyGraph(singleImpl);
+                }
+                else {
+                    // Multiple found. In Spring, you'd look for @Primary among them,
+                    // or you could fail or pick the first.
+                    // For example:
+                    Class<?> primaryImpl = null;
+                    for (Class<?> impl : implementations) {
+                        if (impl.isAnnotationPresent(ProxyEnabled.class)) {
+                            // Let's treat that as "primary".
+                            if (primaryImpl != null) {
+                                // If multiple have ProxyEnabled, you might want to fail or
+                                // pick a single one (like first).
+                                throw new RuntimeException(
+                                        "Multiple @ProxyEnabled (primary) candidates found for " + type.getName()
+                                );
+                            }
+                            primaryImpl = impl;
+                        }
+                    }
+
+                    if (primaryImpl == null) {
+                        // If none are marked, you can fail or pick one
+                        throw new RuntimeException(
+                                "Multiple implementations found for " + type.getName() +
+                                        ", no @ProxyEnabled or 'primary' annotation to pick from."
+                        );
+                    }
+
+                    // Register the primary
+                    registrations.put(type, primaryImpl);
+                    // If you want to also treat it as proxy-eligible:
+                    proxyEnabledClasses.add(type);
+
+                    buildDependencyGraph(primaryImpl);
+                }
+            }
         }
-
-
-        registrations.put(type, type);
-        buildDependencyGraph(type);
+        else {
+            // 2) It's a concrete class
+            registrations.put(type, type);
+            buildDependencyGraph(type);
+        }
     }
 
-    private Class<?> findImplementation(Class<?> iface) {
-        // Look for a class in the registrations that implements the given interface
-        return registrations.values().stream()
-                .filter(clazz -> iface.isAssignableFrom(clazz) && !clazz.isInterface())
-                .findFirst()
-                .orElse(null);
+
+    private Set<Class<?>> findImplementations(Class<?> interfaceType) {
+        Set<Class<?>> implementations = new HashSet<>();
+
+        // Use the ClassLoader to locate classes in the same package as the interface
+        String packageName = interfaceType.getPackageName();
+        String relativePath = packageName.replace('.', '/');
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+
+        try {
+            Enumeration<URL> resources = classLoader.getResources(relativePath);
+
+            while (resources.hasMoreElements()) {
+                URL resource = resources.nextElement();
+                File directory = new File(resource.getFile());
+
+                if (directory.exists()) {
+                    implementations.addAll(findClasses(directory, packageName, interfaceType));
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to find implementations for interface: " + interfaceType.getName(), e);
+        }
+
+        return implementations;
+    }
+
+    private Set<Class<?>> findClasses(File directory, String packageName, Class<?> interfaceType) {
+        Set<Class<?>> classes = new HashSet<>();
+        if (!directory.exists()) {
+            return classes;
+        }
+
+        File[] files = directory.listFiles();
+        if (files == null) return classes;
+
+        for (File file : files) {
+            if (file.isDirectory()) {
+                // Recurse into subdirectories
+                classes.addAll(findClasses(file, packageName + "." + file.getName(), interfaceType));
+            } else if (file.getName().endsWith(".class")) {
+                String className = packageName + '.' + file.getName().replace(".class", "");
+
+                try {
+                    Class<?> clazz = Class.forName(className);
+
+                    // Check if the class implements the given interface and is concrete
+                    if (interfaceType.isAssignableFrom(clazz) && !clazz.isInterface()
+                            && !Modifier.isAbstract(clazz.getModifiers())) {
+                        classes.add(clazz);
+                    }
+                } catch (ClassNotFoundException e) {
+                    // Skip classes that cannot be loaded
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        return classes;
     }
 
 
@@ -55,10 +172,10 @@ public class DIContainer {
             throw new IllegalStateException("Type not registered: " + type.getName());
         }
 
-        // Create or retrieve the instance
         Object instance = instances.computeIfAbsent(type, this::createInstance);
 
-        // Apply proxy only if the class is marked as proxy-enabled
+        // If type is in proxyEnabledClasses (meaning the interface was annotated),
+        // and we have interceptors, build a JDK proxy
         if (proxyEnabledClasses.contains(type) && !interceptors.isEmpty()) {
             Class<?> implementationClass = registrations.get(type);
             Class<?>[] interfaces = getAllInterfaces(implementationClass);
@@ -67,6 +184,7 @@ public class DIContainer {
 
         return type.cast(instance);
     }
+
 
     private Object createInstance(Class<?> type) {
         try {

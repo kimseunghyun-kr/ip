@@ -1,5 +1,7 @@
 package entity.Command;
 
+import entity.tasks.Task;
+import entity.tasks.TaskFactory;
 import service.TaskService;
 
 import java.util.List;
@@ -14,11 +16,10 @@ public class AddCommand implements Command {
 
     @Override
     public void execute(List<String> parameters) {
-        if (parameters.size() != 1) {
-            throw new IllegalArgumentException("Add command requires exactly 1 parameter");
+        if (parameters.size() < 2) {
+            throw new IllegalArgumentException("Add command requires at least 2 parameters: type and description");
         }
-        String task = parameters.get(0);
-        String resposne = taskService.addTask(task);
-        System.out.println(resposne);
+        String response = taskService.addTask(parameters);
+        System.out.println(response);
     }
 }
