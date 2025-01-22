@@ -13,8 +13,8 @@ public class Spring {
         // Register components
         container.register(TaskRepository.class);
         container.register(TaskService.class);
-        container.register(CommandFactory.class);
         container.register(ActionHandler.class);
+        container.register(CommandFactory.class);
 
 
         // Pre-initialize all dependencies

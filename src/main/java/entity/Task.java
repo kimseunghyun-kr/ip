@@ -2,6 +2,7 @@ package entity;
 
 
 public class Task {
+
     private String name;
     private Boolean isCompleted;
 
