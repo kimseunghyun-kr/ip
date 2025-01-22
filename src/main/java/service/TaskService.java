@@ -2,12 +2,13 @@ package service;
 
 import DIContainer.Proxiable;
 import entity.Task;
+import repository.ITaskRepository;
 import repository.TaskRepository;
 
 public class TaskService implements Proxiable {
-    private final TaskRepository taskRepository;
+    private final ITaskRepository taskRepository;
 
-    public TaskService(TaskRepository taskRepository) {
+    public TaskService(ITaskRepository taskRepository) {
         this.taskRepository = taskRepository;
     }
 

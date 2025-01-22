@@ -1,12 +1,13 @@
 package repository;
 
-import DIContainer.Proxiable;
+import DIContainer.AOPInterfaces.AnnotationInterfaces.ExceptionHandler;
 import entity.Task;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class TaskRepository implements Proxiable {
+
+public class TaskRepository implements ITaskRepository {
     public List<Task> storageList = new ArrayList<>();
 
     public String store(Task input)  {

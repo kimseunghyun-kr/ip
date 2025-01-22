@@ -21,6 +21,5 @@ public class MarkCommand implements Command {
         int taskId = Integer.parseInt(parameters.getFirst());
         String response = taskService.markDone(taskId);
         System.out.println(response);
-
     }
 }
