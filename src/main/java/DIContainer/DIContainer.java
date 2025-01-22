@@ -1,14 +1,19 @@
 package DIContainer;
 
+import DIContainer.AOPInterfaces.Interceptor;
+
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 public class DIContainer {
     private final Map<Class<?>, Object> instances = new HashMap<>();
     private final Map<Class<?>, Class<?>> registrations = new HashMap<>();
+    private final Map<Class<? extends Annotation>, Interceptor> interceptors = new HashMap<>();
     private final Map<Class<?>, Set<Class<?>>> dependencyGraph = new HashMap<>();
 
     public void register(Class<?> type) {
@@ -16,11 +21,24 @@ public class DIContainer {
         buildDependencyGraph(type);
     }
 
+    public void registerInterceptor(Class<? extends Annotation> annotation, Interceptor interceptor) {
+        interceptors.put(annotation, interceptor);
+    }
+
     public <T> T resolve(Class<T> type) {
         if (!registrations.containsKey(type)) {
             throw new IllegalStateException("Type not registered: " + type.getName());
         }
-        return type.cast(instances.computeIfAbsent(type, this::createInstance));
+
+        // Create or retrieve the instance
+        Object instance = instances.computeIfAbsent(type, this::createInstance);
+
+        // Apply AOP proxy for Proxiable classes
+        if (Proxiable.class.isAssignableFrom(type) && !interceptors.isEmpty()) {
+            instance = AOP.createProxy(instance, interceptors);
+        }
+
+        return type.cast(instance);
     }
 
     private Object createInstance(Class<?> type) {

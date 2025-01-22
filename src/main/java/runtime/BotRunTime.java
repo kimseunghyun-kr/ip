@@ -1,5 +1,6 @@
 package runtime;
 
+import DIContainer.Proxiable;
 import entity.Actions;
 import entity.Command.Command;
 import entity.Command.TerminationCommand;
@@ -9,7 +10,7 @@ import java.util.Scanner;
 
 import static util.ChatBotUtil.*;
 
-public class BotRunTime {
+public class BotRunTime implements Proxiable {
 
     private final TaskService taskService;
     private final ActionHandler actionHandler;

@@ -1,5 +1,6 @@
 package runtime;
 
+import DIContainer.Proxiable;
 import entity.Actions;
 import entity.Command.Command;
 import entity.Command.CommandFactory;
@@ -7,7 +8,7 @@ import entity.Command.CommandFactory;
 import java.util.Arrays;
 import java.util.List;
 
-public class ActionHandler {
+public class ActionHandler implements Proxiable {
     private final CommandFactory commandFactory;
 
     public ActionHandler(CommandFactory commandFactory) {

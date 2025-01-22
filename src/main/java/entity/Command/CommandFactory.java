@@ -1,12 +1,13 @@
 package entity.Command;
 
+import DIContainer.Proxiable;
 import entity.Actions;
 import service.TaskService;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class CommandFactory {
+public class CommandFactory implements Proxiable {
     private final TaskService taskService;
     private static final Map<Actions, Class<? extends Command>> commandMap = new HashMap<>();
 

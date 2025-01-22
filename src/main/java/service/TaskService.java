@@ -1,9 +1,10 @@
 package service;
 
+import DIContainer.Proxiable;
 import entity.Task;
 import repository.TaskRepository;
 
-public class TaskService {
+public class TaskService implements Proxiable {
     private final TaskRepository taskRepository;
 
     public TaskService(TaskRepository taskRepository) {
