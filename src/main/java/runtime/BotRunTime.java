@@ -4,35 +4,43 @@ import DIContainer.Proxiable;
 import entity.Actions;
 import entity.Command.Command;
 import entity.Command.TerminationCommand;
-import service.TaskService;
+import exceptions.UserFacingException;
+import repository.entityManager.TaskFlusher;
+import service.ITaskService;
 
 import java.util.Scanner;
 
 import static util.ChatBotUtil.*;
 
-public class BotRunTime implements Proxiable {
+public class BotRunTime implements IBotRunTime {
 
-    private final TaskService taskService;
     private final ActionHandler actionHandler;
+    private final TaskFlusher taskFlusher;
     Scanner scanner = new Scanner(System.in);
 
-    public BotRunTime(TaskService taskService, ActionHandler actionHandler) {
-        this.taskService = taskService;
+    public BotRunTime( ActionHandler actionHandler, TaskFlusher taskFlusher) {
         this.actionHandler = actionHandler;
+        this.taskFlusher = taskFlusher;
     }
 
     public void run(){
+        taskFlusher.start();
         linesep();
         introSequence();
         while(true) {
-            linesep();
-            String input = scanner.nextLine();
-            linesep();
-            Command command = actionHandler.resolveAction(input);
-            if(command instanceof TerminationCommand) {
-                break;
+            try {
+                linesep();
+                String input = scanner.nextLine();
+                linesep();
+                Command command = actionHandler.resolveAction(input);
+                if (command instanceof TerminationCommand) {
+                    break;
+                }
+            } catch(UserFacingException e) {
+                System.out.println("outermost loop catch :: " + e.getMessage());
             }
         }
+        taskFlusher.stop();
         exitSequence();
     }
 }
