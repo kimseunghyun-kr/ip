@@ -2,7 +2,9 @@ package entity.tasks;
 
 import java.time.LocalDateTime;
 
+
 public class Events extends Task {
+
     private LocalDateTime startat;
     private LocalDateTime endby;
     public Events(String name, LocalDateTime startat, LocalDateTime endby) {
@@ -19,6 +21,17 @@ public class Events extends Task {
             builder.append("[ ] ");
         }
         builder.append(super.getName());
+        builder.append("         " );
+        builder.append("UUID:: ");
+        builder.append(super.getId());
         return builder.toString();
+    }
+
+    public LocalDateTime getEndby() {
+        return endby;
+    }
+
+    public LocalDateTime getStartat() {
+        return startat;
     }
 }

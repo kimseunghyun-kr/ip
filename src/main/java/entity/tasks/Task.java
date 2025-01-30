@@ -1,12 +1,18 @@
 package entity.tasks;
 
 
+import java.util.UUID;
+
 public class Task {
 
+    private UUID id;
+
     private String name;
+
     private Boolean isCompleted;
 
     public Task(String name) {
+        this.id = UUID.randomUUID();
         this.name = name;
         this.isCompleted = false;
     }
@@ -29,7 +35,13 @@ public class Task {
             builder.append("[ ] ");
         }
         builder.append(name);
+        builder.append("         " );
+        builder.append("UUID:: ");
+        builder.append(this.id);
         return builder.toString();
+    }
+    public UUID getId() {
+        return id;
     }
 
     public String getName() {
@@ -39,4 +51,13 @@ public class Task {
     public Boolean getCompleted() {
         return isCompleted;
     }
+
+    public void setCompleted(Boolean completed) {
+        isCompleted = completed;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
 }

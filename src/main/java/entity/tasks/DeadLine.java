@@ -1,8 +1,10 @@
 package entity.tasks;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 public class DeadLine extends Task {
+
     private LocalDateTime dueby;
 
     public DeadLine(String name, LocalDateTime dueby) {
@@ -20,6 +22,12 @@ public class DeadLine extends Task {
             builder.append("[ ] ");
         }
         builder.append(super.getName());
+        builder.append("         " );
+        builder.append("UUID:: ");
+        builder.append(super.getId());
         return builder.toString();
+    }
+    public LocalDateTime getDueby() {
+        return dueby;
     }
 }

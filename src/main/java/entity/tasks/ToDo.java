@@ -15,6 +15,9 @@ public class ToDo extends Task{
             builder.append("[ ] ");
         }
         builder.append(super.getName());
+        builder.append("         " );
+        builder.append("UUID:: ");
+        builder.append(super.getId());
         return builder.toString();
     }
 }
