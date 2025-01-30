@@ -1,11 +1,6 @@
 package runtime;
 
-import static util.ChatBotUtil.exitSequence;
-import static util.ChatBotUtil.introSequence;
-import static util.ChatBotUtil.linesep;
-
-import java.util.Scanner;
-
+import dispatcher.IDispatcher;
 import entity.command.TerminationCommand;
 import exceptions.UserFacingException;
 import repository.entityManager.TaskFlusher;
@@ -19,23 +14,19 @@ import repository.entityManager.TaskFlusher;
  */
 public class BotRunTime implements IBotRunTime {
 
-    /** Handles action resolution and command execution. */
-    private final ActionHandler actionHandler;
-
     /** Manages task persistence and flushing operations. */
     private final TaskFlusher taskFlusher;
 
-    /** Scanner for reading user input. */
-    private final Scanner scanner = new Scanner(System.in);
+    private final IDispatcher dispatcher;
 
     /**
      * Constructs a {@code BotRunTime} with required dependencies.
      *
-     * @param actionHandler The handler responsible for resolving user actions.
+     * @param dispatcher The controller responsible for receiving and resolving user actions.
      * @param taskFlusher The service responsible for managing task persistence.
      */
-    public BotRunTime(ActionHandler actionHandler, TaskFlusher taskFlusher) {
-        this.actionHandler = actionHandler;
+    public BotRunTime(TaskFlusher taskFlusher, IDispatcher dispatcher) {
+        this.dispatcher = dispatcher;
         this.taskFlusher = taskFlusher;
     }
 
@@ -51,23 +42,12 @@ public class BotRunTime implements IBotRunTime {
      */
     public void run() {
         taskFlusher.start();
-        linesep();
-        introSequence();
-        while (true) {
-            try {
-                linesep();
-                String input = scanner.nextLine();
-                linesep();
-                CommandDao command = actionHandler.resolveAction(input);
-                command.execute();
-                if (command.command instanceof TerminationCommand) {
-                    break;
-                }
-            } catch (UserFacingException e) {
-                System.out.println("outermost loop catch :: " + e.getMessage());
-            }
+        try {
+            dispatcher.run(); // Delegate to CLI or GUI controller
+        } catch (Exception e) {
+            System.out.println("Unhandled exception in BotRunTime: " + e.getMessage());
+        } finally {
+            taskFlusher.stop();
         }
-        taskFlusher.stop();
-        exitSequence();
     }
 }

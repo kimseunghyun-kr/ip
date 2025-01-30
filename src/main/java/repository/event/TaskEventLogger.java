@@ -76,10 +76,12 @@ public class TaskEventLogger {
                 return;
             }
 
-            // Write updated tasks back to file
+            // Write the updated tasks to the temporary file with the correct format
+            writer.write("[\n");  // Write opening bracket
             for (Task task : storageMap.values()) {
                 writer.write(TaskSerializer.serializeTask(task) + "\n");
             }
+            writer.write("]\n");  // Write closing bracket
 
         } catch (IOException e) {
             System.err.println("Error applying logs to file: " + e.getMessage());

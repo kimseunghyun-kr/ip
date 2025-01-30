@@ -4,48 +4,50 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import entity.TaskType;
+import entity.tasks.Task;
 import service.ITaskService;
 
 
 
 public class MockTaskService implements ITaskService {
+
     @Override
-    public String markDone(int index) {
-        return "";
+    public Task markDone(int index) {
+        return null;
     }
 
     @Override
-    public String markUndone(int index) {
-        return "";
+    public Task markUndone(int index) {
+        return null;
     }
 
     @Override
-    public String getAllTasks() {
-        return "";
+    public List<Task> getAllTasks() {
+        return List.of();
     }
 
     @Override
-    public String addTask(List<String> taskParams) {
-        return "";
+    public Task addTask(List<String> taskParams) {
+        return null;
     }
 
     @Override
-    public String deleteTask(int taskId) {
-        return "";
+    public Task deleteTask(int taskId) {
+        return null;
     }
 
     @Override
-    public String searchByDate(TaskType type, LocalDateTime from, LocalDateTime to) {
-        return "";
+    public List<Task> searchByDate(TaskType type, LocalDateTime from, LocalDateTime to) {
+        return List.of();
     }
 
     @Override
-    public String searchOrder(String uuid) {
-        return "";
+    public int searchOrder(String uuid) {
+        return null;
     }
 
     @Override
-    public String searchByKeyword(String keyword) {
-        return "";
+    public List<Task> searchByKeyword(String keyword) {
+        return List.of();
     }
 }

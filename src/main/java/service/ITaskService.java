@@ -7,8 +7,7 @@ import dicontainer.Proxiable;
 import dicontainer.aopinterfaces.annotationinterfaces.ExceptionHandler;
 import dicontainer.aopinterfaces.annotationinterfaces.ProxyEnabled;
 import entity.TaskType;
-
-
+import entity.tasks.Task;
 
 
 /**
@@ -26,7 +25,7 @@ public interface ITaskService extends Proxiable {
      * @return A confirmation message.
      */
     @ExceptionHandler
-    String markDone(int index);
+    Task markDone(int index);
 
     /**
      * Marks a task as undone.
@@ -35,7 +34,7 @@ public interface ITaskService extends Proxiable {
      * @return A confirmation message.
      */
     @ExceptionHandler
-    String markUndone(int index);
+    Task markUndone(int index);
 
     /**
      * Retrieves all tasks.
@@ -43,7 +42,7 @@ public interface ITaskService extends Proxiable {
      * @return A formatted string containing all tasks.
      */
     @ExceptionHandler
-    String getAllTasks();
+    List<Task> getAllTasks();
 
     /**
      * Adds a new task based on provided parameters.
@@ -52,7 +51,7 @@ public interface ITaskService extends Proxiable {
      * @return A confirmation message.
      */
     @ExceptionHandler
-    String addTask(List<String> taskParams);
+    Task addTask(List<String> taskParams);
 
     /**
      * Deletes a task by its identifier.
@@ -61,7 +60,7 @@ public interface ITaskService extends Proxiable {
      * @return A confirmation message.
      */
     @ExceptionHandler
-    String deleteTask(int taskId);
+    Task deleteTask(int taskId);
 
     /**
      * Searches for tasks by date range and type.
@@ -72,7 +71,7 @@ public interface ITaskService extends Proxiable {
      * @return A formatted string containing matching tasks.
      */
     @ExceptionHandler
-    String searchByDate(TaskType type, LocalDateTime from, LocalDateTime to);
+    List<Task> searchByDate(TaskType type, LocalDateTime from, LocalDateTime to);
 
     /**
      * Searches for a task by its unique identifier.
@@ -81,7 +80,7 @@ public interface ITaskService extends Proxiable {
      * @return A formatted string containing the matching task.
      */
     @ExceptionHandler
-    String searchOrder(String uuid);
+    int searchOrder(String uuid);
 
     /**
      * Searches for tasks by a keyword.
@@ -90,5 +89,5 @@ public interface ITaskService extends Proxiable {
      * @return A formatted string containing matching tasks.
      */
     @ExceptionHandler
-    String searchByKeyword(String keyword);
+    List<Task> searchByKeyword(String keyword);
 }

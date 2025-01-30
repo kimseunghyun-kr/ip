@@ -2,6 +2,8 @@ package entity.command;
 
 import java.util.List;
 
+import controller.ControllerResponse;
+import controller.ITaskController;
 import exceptions.UserFacingException;
 import service.ITaskService;
 
@@ -14,16 +16,16 @@ import service.ITaskService;
  */
 public class AddCommand implements Command {
     /** The task service used to manage tasks. */
-    private ITaskService taskService;
+    private ITaskController taskController;
 
     /**
      * Sets the task service for this command.
      *
-     * @param taskService The task service instance to be used.
+     * @param taskController The task service instance to be used.
      */
     @Override
-    public void setTaskService(ITaskService taskService) {
-        this.taskService = taskService;
+    public void setTaskController(ITaskController taskController) {
+        this.taskController = taskController;
     }
 
     /**
@@ -34,11 +36,10 @@ public class AddCommand implements Command {
      * @throws UserFacingException if fewer than two parameters are provided.
      */
     @Override
-    public void execute(List<String> parameters) {
+    public ControllerResponse execute(List<String> parameters) {
         if (parameters.size() < 2) {
             throw new UserFacingException("Add command requires at least 2 parameters: type and description");
         }
-        String response = taskService.addTask(parameters);
-        System.out.println(response);
+        return taskController.addTask(parameters);
     }
 }

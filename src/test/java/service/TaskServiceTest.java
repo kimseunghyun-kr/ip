@@ -1,8 +1,12 @@
 package service;
 
+import controller.ITaskController;
+import entity.MockTaskController;
 import entity.tasks.Task;
 import mocks.MockTaskCoordinatorRepositoryService;
 import mocks.MockTaskRepository;
+import repository.ITaskRepository;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,7 +17,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TaskServiceTest {
-
+    private ITaskController taskController;
     private TaskService taskService;
     private MockTaskRepository mockTaskRepository;
     private MockTaskCoordinatorRepositoryService mockTaskCoordinatorRepositoryService;
@@ -23,6 +27,7 @@ public class TaskServiceTest {
         mockTaskRepository = new MockTaskRepository();
         mockTaskCoordinatorRepositoryService = new MockTaskCoordinatorRepositoryService(mockTaskRepository);
         taskService = new TaskService(mockTaskCoordinatorRepositoryService, mockTaskRepository);
+        taskController = new MockTaskController();
     }
 
     @Test
@@ -33,7 +38,7 @@ public class TaskServiceTest {
 
         // WHEN
         taskService.addTask(new ArrayList<>(List.of("TODO", "Task")));
-        String tasks = taskService.getAllTasks();
+        String tasks = taskController.getAllTasks();
 
         // THEN
         assertNotNull(tasks);
@@ -46,7 +51,7 @@ public class TaskServiceTest {
     void testDeleteTask() {
         // GIVEN
         taskService.addTask(new ArrayList<>(List.of("TODO", "Task")));
-        String tasks = taskService.getAllTasks();
+        String tasks = taskController.getAllTasks();
 
         // WHEN
         taskService.deleteTask(1);
@@ -65,7 +70,7 @@ public class TaskServiceTest {
         mockTaskRepository.save(task2);
 
         // WHEN
-        String results = taskService.searchByKeyword("Important");
+        String results = taskController.searchByKeyword("Important");
 
         // THEN
         assertTrue(results.contains(task1.toString()));
@@ -81,7 +86,7 @@ public class TaskServiceTest {
         mockTaskRepository.save(task2);
 
         // WHEN
-        String tasks = taskService.getAllTasks();
+        String tasks = taskController.getAllTasks();
 
         // THEN
         assertTrue(tasks.contains(task1.toString()));

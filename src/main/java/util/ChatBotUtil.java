@@ -16,7 +16,7 @@ public class ChatBotUtil {
         System.out.println(greet2);
     }
     public static void exitSequence() {
-        String exitSeq = "Bye Hope to see you again soon!";
+        String exitSeq = "exiting";
         System.out.println(exitSeq);
         linesep();
     }

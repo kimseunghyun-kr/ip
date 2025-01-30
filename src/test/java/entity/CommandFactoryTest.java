@@ -1,5 +1,6 @@
 package entity;
 
+import controller.ITaskController;
 import entity.command.*;
 import mocks.MockTaskService;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,13 +16,13 @@ import static org.junit.jupiter.api.Assertions.*;
  * Follows the GIVEN-WHEN-THEN format for readability.
  */
 public class CommandFactoryTest {
-    private ITaskService mockTaskService;
+    private ITaskController mockTaskController;
     private CommandFactory commandFactory;
 
     @BeforeEach
     void setUp() {
-        mockTaskService = new MockTaskService();
-        commandFactory = new CommandFactory(mockTaskService);
+        mockTaskController = new MockTaskController();
+        commandFactory = new CommandFactory(mockTaskController);
     }
 
     @Test

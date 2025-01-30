@@ -2,8 +2,9 @@ package entity.command;
 
 import java.util.List;
 
+import controller.ControllerResponse;
+import controller.ITaskController;
 import exceptions.UserFacingException;
-import service.ITaskService;
 
 
 
@@ -13,14 +14,18 @@ import service.ITaskService;
  */
 public class TerminationCommand implements Command {
 
+    public static final ControllerResponse SIGTERM_INPUT =
+            new ControllerResponse("bye bye hope to see you next time");
+
     @Override
-    public void setTaskService(ITaskService taskService) {
+    public void setTaskController(ITaskController taskController) {
     }
 
     @Override
-    public void execute(List<String> parameters) {
+    public ControllerResponse execute(List<String> parameters) {
         if (!parameters.isEmpty()) {
             throw new UserFacingException("is this a bye? or just a chat?");
         }
+        return SIGTERM_INPUT;
     }
 }

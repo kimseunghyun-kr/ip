@@ -3,6 +3,7 @@ package entity.command;
 import java.util.HashMap;
 import java.util.Map;
 
+import controller.ITaskController;
 import dicontainer.Proxiable;
 import entity.Actions;
 import service.ITaskService;
@@ -17,14 +18,14 @@ public class CommandFactory implements Proxiable {
     /** Maps actions to their corresponding command classes. */
     private static final Map<Actions, Class<? extends Command>> commandMap = new HashMap<>();
     /** The task service instance to be injected into created commands. */
-    private final ITaskService taskService;
+    private final ITaskController taskController;
     /**
      * Constructs a {@code CommandFactory} with a given task service.
      *
-     * @param taskService The task service instance to be used by created commands.
+     * @param taskController The task service instance to be used by created commands.
      */
-    public CommandFactory(ITaskService taskService) {
-        this.taskService = taskService;
+    public CommandFactory(ITaskController taskController) {
+        this.taskController = taskController;
     }
 
     static {
@@ -49,7 +50,7 @@ public class CommandFactory implements Proxiable {
         Class<? extends Command> commandClass = commandMap.getOrDefault(action, InvalidCommand.class);
         try {
             Command command = commandClass.getDeclaredConstructor().newInstance();
-            command.setTaskService(taskService); // Inject TaskService
+            command.setTaskController(taskController); // Inject TaskService
             return command;
         } catch (Exception e) {
             throw new RuntimeException("Error creating command for action: " + action, e);

@@ -2,6 +2,8 @@ package entity.command;
 
 import java.util.List;
 
+import controller.ControllerResponse;
+import controller.ITaskController;
 import exceptions.UserFacingException;
 import service.ITaskService;
 
@@ -12,19 +14,18 @@ import service.ITaskService;
  * based on the provided parameters.
  */
 public class DeleteCommand implements Command {
-    private ITaskService taskService;
+    private ITaskController taskController;
     @Override
-    public void setTaskService(ITaskService taskService) {
-        this.taskService = taskService;
+    public void setTaskController(ITaskController taskController) {
+        this.taskController = taskController;
     }
 
     @Override
-    public void execute(List<String> parameters) {
+    public ControllerResponse execute(List<String> parameters) {
         if (parameters.isEmpty()) {
             throw new UserFacingException("Delete command requires one parameter - size");
         }
         int taskId = Integer.parseInt(parameters.get(0));
-        String task = taskService.deleteTask(taskId);
-        System.out.println(task);
+        return taskController.deleteTask(taskId);
     }
 }

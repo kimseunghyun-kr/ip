@@ -1,0 +1,19 @@
+#userInput{
+
+}
+.root {
+    -fx-height: 70%;
+    -fx-width: auto;
+}
+#dialogContainer{
+    -fx-background-color: rgb(2,0,36);
+    -fx-background-color: linear-gradient(rgba(2,0,36,1) 10%, rgba(128,128,251,1) 50%, rgba(0,212,255,1) 70%);
+}
+
+.label {
+    -fx-font-size: 15;
+    -fx-font-family: "Arial";
+    -fx-text-fill: rgb(100,100,100);
+    -fx-background-color: rgb(230,230,230);
+    -fx-alignment: center;
+}

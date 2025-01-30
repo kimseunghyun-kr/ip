@@ -2,6 +2,7 @@ package runtime;
 
 import java.util.List;
 
+import controller.ControllerResponse;
 import entity.command.Command;
 
 public class CommandDao {
@@ -13,8 +14,8 @@ public class CommandDao {
         this.params = parameters;
     }
 
-    public void execute() {
-        command.execute(params);
+    public ControllerResponse execute() {
+        return command.execute(params);
     }
     public Command getCommand() {
         return command;

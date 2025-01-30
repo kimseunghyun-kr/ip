@@ -3,6 +3,8 @@ package entity.command;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import controller.ControllerResponse;
+import controller.ITaskController;
 import entity.TaskType;
 import exceptions.UserFacingException;
 import service.ITaskService;
@@ -15,15 +17,15 @@ import util.DateTimeUtils;
  * based on the provided parameters.
  */
 public class SearchCommand implements Command {
-    private ITaskService taskService;
+    private ITaskController taskController;
     @Override
-    public void setTaskService(ITaskService taskService) {
-        this.taskService = taskService;
+    public void setTaskController(ITaskController taskController) {
+        this.taskController = taskController;
     }
 
 
     @Override
-    public void execute(List<String> parameters) {
+    public ControllerResponse execute(List<String> parameters) {
         if (parameters.isEmpty()) {
             throw new UserFacingException("Please enter a search term in the "
                     + "following <keyword> <val1> <val2> <val...>");
@@ -32,9 +34,7 @@ public class SearchCommand implements Command {
         String keyword = parameters.get(0);
         if (keyword.equalsIgnoreCase("UUID")) {
             String val1 = parameters.get(1);
-            String response = taskService.searchOrder(val1);
-            System.out.println(response);
-            return;
+            return taskController.searchOrder(val1);
         } else if (keyword.equalsIgnoreCase("DATE")) {
             if (parameters.size() < 2) {
                 throw new UserFacingException("Date search term requires at least two parameters \n"
@@ -44,29 +44,24 @@ public class SearchCommand implements Command {
             if (val1.equals(TaskType.EVENT) && parameters.size() == 4) {
                 if (parameters.get(2).equalsIgnoreCase("nil")) {
                     LocalDateTime val3 = DateTimeUtils.parseDateOrDateTime(parameters.get(3));
-                    System.out.println(taskService.searchByDate(TaskType.EVENT, null, val3));
-                    return;
+                    return taskController.searchByDate(TaskType.EVENT, null, val3);
                 }
                 LocalDateTime val2 = DateTimeUtils.parseDateOrDateTime(parameters.get(2));
                 LocalDateTime val3 = DateTimeUtils.parseDateOrDateTime(parameters.get(3));
-                System.out.println(taskService.searchByDate(TaskType.EVENT, val2, val3));
-                return;
+                return taskController.searchByDate(TaskType.EVENT, val2, val3);
             } else if (val1.equals(TaskType.EVENT) && parameters.size() == 3) {
                 LocalDateTime val2 = DateTimeUtils.parseDateOrDateTime(parameters.get(2));
-                System.out.println(taskService.searchByDate(TaskType.EVENT , val2, null));
-                return;
+                return taskController.searchByDate(TaskType.EVENT , val2, null);
             } else if (val1.equals(TaskType.DEADLINE) && parameters.size() == 4) {
                 LocalDateTime val3 = DateTimeUtils.parseDateOrDateTime(parameters.get(3));
-                System.out.println(taskService.searchByDate(TaskType.DEADLINE , val3, null));
-                return;
+                return taskController.searchByDate(TaskType.DEADLINE , val3, null);
             }
             throw new UserFacingException("Date search term requires at least two parameters \n"
                     + "in the format search date <event/deadline> <null/yyyy-mm-dd> <null/yyyy-mm-dd>");
 
 
         } else if (parameters.size() == 2) {
-            String response = taskService.searchByKeyword(parameters.get(1));
-            System.out.println(response);
+            return taskController.searchByKeyword(parameters.get(1));
         }
 
         throw new UserFacingException("INVALID SEARCH TERM");

@@ -66,6 +66,44 @@ public class DependencyInjectionContainer {
     // ========== Registration Methods ==========
 
     /**
+     * Registers a specific implementation class for a given interface, optionally
+     * providing constructor arguments. This registration bypasses auto-discovery
+     * and does <strong>not</strong> rely on {@link ProxyEnabled} annotations, meaning
+     * no automatic proxy wrapping will be applied to this mapping.
+     * <p>
+     * Usage:
+     * <pre>
+     *    container.register(MyInterface.class, MyConcreteClass.class, arg1, arg2);
+     * </pre>
+     * </p>
+     *
+     * @param interfaceType the interface type to be registered
+     * @param concreteType  the concrete class implementing {@code interfaceType}
+     * @param args          optional constructor arguments used when instantiating {@code concreteType}
+     * @throws IllegalArgumentException if the first parameter is not an interface or
+     *                                  the second parameter is not a concrete class
+     */
+    public void register(Class<?> interfaceType, Class<?> concreteType, Object... args) {
+        // Optional: Validate that interfaceType is indeed an interface
+        if (!interfaceType.isInterface()) {
+            throw new IllegalArgumentException(
+                    "First parameter must be an interface: " + interfaceType.getName()
+            );
+        }
+        // Optional: Validate that concreteType is actually concrete
+        if (concreteType.isInterface() || Modifier.isAbstract(concreteType.getModifiers())) {
+            throw new IllegalArgumentException(
+                    "Second parameter must be a concrete class: " + concreteType.getName()
+            );
+        }
+
+        registrations.put(interfaceType, concreteType);
+        storeConstructorArgs(concreteType, args);
+
+
+    }
+
+    /**
      * Registers a concrete class along with optional constructor arguments.
      *
      * @param type The class to register.
@@ -75,8 +113,6 @@ public class DependencyInjectionContainer {
         // type is presumably a concrete class
         registrations.put(type, type);
         storeConstructorArgs(type, args);
-        // Build dependency graph for 'type'
-        buildDependencyGraph(type);
         checkIfProxyEnabled(type);
     }
 
@@ -96,7 +132,6 @@ public class DependencyInjectionContainer {
                 }
                 registrations.put(type, impl);
                 checkIfProxyEnabled(type);
-                buildDependencyGraph(impl);
             } else {
                 // We attempt to auto-discover an impl class
                 Set<Class<?>> impls = findImplementations(type);
@@ -105,7 +140,6 @@ public class DependencyInjectionContainer {
                 } else if (impls.size() == 1) {
                     Class<?> singleImpl = impls.iterator().next();
                     registrations.put(type, singleImpl);
-                    buildDependencyGraph(singleImpl);
                     checkIfProxyEnabled(singleImpl);
                 } else {
                     // multiple possible impls => pick one, or fail
@@ -123,14 +157,12 @@ public class DependencyInjectionContainer {
                                         + " and none is @ProxyEnabled to pick as primary");
                     }
                     registrations.put(type, primary);
-                    buildDependencyGraph(primary);
                     checkIfProxyEnabled(primary);
                 }
             }
         } else {
             // It's a concrete class
             registrations.put(type, type);
-            buildDependencyGraph(type);
             checkIfProxyEnabled(type);
         }
     }
@@ -279,6 +311,11 @@ public class DependencyInjectionContainer {
     public void initialize() {
         if (initialized) {
             return;
+        }
+        // Build the graph for all registrations:
+        for (Class<?> key : registrations.keySet()) {
+            Class<?> implClass = registrations.get(key);
+            buildDependencyGraph(implClass);
         }
         // 1) Gather all unique nodes (interfaces and classes)
         Set<Class<?>> allTypes = dependencyGraph.keySet();
