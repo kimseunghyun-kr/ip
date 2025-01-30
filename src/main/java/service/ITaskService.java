@@ -25,5 +25,7 @@ public interface ITaskService extends Proxiable {
     public String SearchByDate(TaskType type, LocalDateTime from, LocalDateTime to);
     @ExceptionHandler
     String SearchOrder(String uuid);
+    @ExceptionHandler
+    String SearchByKeyword(String keyword);
 
 }

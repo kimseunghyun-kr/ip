@@ -77,4 +77,11 @@ public class TaskRepository implements ITaskRepository {
         return storageList.indexOf(storageMap.get(uuid));
     }
 
+    @Override
+    public List<Task> findTaskWithKeyword(String keyword) {
+        return storageList.stream().filter(entry -> {
+            return entry.getName().contains(keyword);
+        }).toList();
+    }
+
 }

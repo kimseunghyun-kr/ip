@@ -24,8 +24,12 @@ public class ActionHandler implements Proxiable {
         if(command.equalsIgnoreCase("add")) {
             throw new UserFacingException(" add is a deprecated action, please specify type of action");
         }
+
         // Extract the parameters (from index 1 to end)
         List<String> parameters = new ArrayList<>(Arrays.asList(Arrays.copyOfRange(split, 1, split.length)));
+        if(command.equalsIgnoreCase("find")) {
+            return commandFactory.createCommand(Actions.SEARCH);
+        }
         Actions action;
         try {
             action = Actions.fromString(command.toUpperCase());
@@ -33,7 +37,9 @@ public class ActionHandler implements Proxiable {
         } catch (IllegalArgumentException e) {
             action = Actions.INVALID;
         }
+
         Command generatedCommand = commandFactory.createCommand(action);
+
         try {
             if(action == Actions.ADD) {
                 parameters.add(0,command);

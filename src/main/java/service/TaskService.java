@@ -90,6 +90,18 @@ public class TaskService implements ITaskService {
     }
 
     @Override
+    public String SearchByKeyword(String keyword) {
+        List<Task> taskContainingKeyword = taskRepository.findTaskWithKeyword(keyword);
+        StringBuilder sb = new StringBuilder();
+        sb.append("The following tasks have been searched\n");
+        for(Task containingKeyword : taskContainingKeyword) {
+            sb.append(containingKeyword).append("\n");
+        }
+        return sb.toString();
+
+    }
+
+    @Override
     public String SearchByDate(TaskType type, LocalDateTime from, LocalDateTime to) {
         List<Task> withinDates = taskRepository.findAllFromWhenToWhen(type, from, to);
         StringBuilder sb = new StringBuilder();

@@ -38,4 +38,6 @@ public interface ITaskRepository extends CrudRepository<Task, Integer>, Proxiabl
     List<Task> findAllFromWhenToWhen(TaskType type, LocalDateTime from, LocalDateTime to);
 
     int findOrder(UUID uuid);
+
+    List<Task> findTaskWithKeyword(String keyword);
 }

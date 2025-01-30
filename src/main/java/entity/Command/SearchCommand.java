@@ -19,7 +19,7 @@ public class SearchCommand implements Command {
 
     @Override
     public void execute(List<String> parameters) {
-        if (parameters.size() < 1) {
+        if (parameters.isEmpty()) {
             throw new UserFacingException("Please enter a search term in the following <keyword> <val1> <val2> <val...>");
         }
 
@@ -29,8 +29,7 @@ public class SearchCommand implements Command {
             String response = taskService.SearchOrder(val1);
             System.out.println(response);
             return;
-        }
-        if(keyword.equalsIgnoreCase("DATE")) {
+        } else if(keyword.equalsIgnoreCase("DATE")) {
             if(parameters.size() < 2) {
                 throw new UserFacingException("Date search term requires at least two parameters \n" +
                         "in the format search date <event/deadline> <null/yyyy-mm-dd> <null/yyyy-mm-dd>");
@@ -59,6 +58,9 @@ public class SearchCommand implements Command {
                     "in the format search date <event/deadline> <null/yyyy-mm-dd> <null/yyyy-mm-dd>");
 
 
+        } else if(parameters.size() == 2) {
+            String response = taskService.SearchByKeyword(parameters.get(1));
+            System.out.println(response);
         }
 
         throw new UserFacingException("INVALID SEARCH TERM");
