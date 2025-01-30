@@ -24,14 +24,7 @@ public class ChatBotUtil {
 
 
     public static String logoGen() {
-        String logo = ".d8888.; d8888b.; d8888b.; d888888b; d8b   db;  d888b;  \n" +
-                "88'  YP; 88  `8D; 88  `8D;   `88';   888o  88; 88' Y8b; \n" +
-                "`8bo.;   88oodD'; 88oobY';    88;    88V8o 88; 88;      \n" +
-                "  `Y8b.; 88~~~;   88`8b;      88;    88 V8o88; 88  ooo; \n" +
-                "db   8D; 88;      88 `88.;   .88.;   88  V888; 88. ~8~; \n" +
-                "`8888Y'; 88;      88   YD; Y888888P; VP   V8P;  Y888P;  \n";
-
-        String[] words = logo.split(";");
+        String[] words = getBaseLogo();
         String[] colors = {
                 "\033[31m", // Red
                 "\033[38;2;255;165;0m", // Orange
@@ -54,6 +47,18 @@ public class ChatBotUtil {
         }
         coloredLogo.append(reset);
         return coloredLogo.toString();
+    }
+
+    private static String[] getBaseLogo() {
+        String logo = ".d8888.; d8888b.; d8888b.; d888888b; d8b   db;  d888b;  \n" +
+                "88'  YP; 88  `8D; 88  `8D;   `88';   888o  88; 88' Y8b; \n" +
+                "`8bo.;   88oodD'; 88oobY';    88;    88V8o 88; 88;      \n" +
+                "  `Y8b.; 88~~~;   88`8b;      88;    88 V8o88; 88  ooo; \n" +
+                "db   8D; 88;      88 `88.;   .88.;   88  V888; 88. ~8~; \n" +
+                "`8888Y'; 88;      88   YD; Y888888P; VP   V8P;  Y888P;  \n";
+
+        String[] words = logo.split(";");
+        return words;
     }
 
 }
