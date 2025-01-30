@@ -6,17 +6,24 @@ import DIContainer.AOPInterfaces.LoggingInterceptor;
 import DIContainer.AOPInterfaces.TransactionalInterceptor;
 import DIContainer.DIContainer;
 import entity.Command.CommandFactory;
+import repository.FileBackedTaskRepository;
+import repository.IFileBackedTaskRepository;
 import repository.ITaskRepository;
-import repository.TaskRepository;
+import repository.entityManager.BabyEntityManager;
+import repository.entityManager.TaskFlusher;
 import runtime.ActionHandler;
 import runtime.BotRunTime;
-import service.TaskService;
+import runtime.IBotRunTime;
+import service.ITaskService;
+import util.DirectoryInitializeUtils;
+
+import java.nio.file.Path;
 
 public class Spring {
     public static void main(String[] args) {
         // Initialize the DI container
         DIContainer container = new DIContainer();
-
+        Path filePath = DirectoryInitializeUtils.initializeDirectory();
 
         // Register interceptors
         container.registerInterceptor(Log.class, new LoggingInterceptor());
@@ -24,21 +31,21 @@ public class Spring {
         container.registerInterceptor(ExceptionHandler.class, new ExceptionHandlerInterceptor());
 
         // Register components
+        container.register(FileBackedTaskRepository.class, filePath);
+        container.register(IFileBackedTaskRepository.class);
         container.register(ITaskRepository.class);
-        container.register(TaskService.class);
+        container.register(ITaskService.class);
         container.register(ActionHandler.class);
         container.register(CommandFactory.class);
-        container.register(BotRunTime.class); // Register BotRunTime
-
-
-
-
+        container.register(TaskFlusher.class);
+        container.register(BabyEntityManager.class);
+        container.register(IBotRunTime.class); // Register BotRunTime
 
         // Pre-initialize all dependencies
         container.initialize();
 
         // Start the runtime
-        BotRunTime botRunTime = container.resolve(BotRunTime.class);
+        IBotRunTime botRunTime = container.resolve(IBotRunTime.class);
         botRunTime.run();
     }
 }
