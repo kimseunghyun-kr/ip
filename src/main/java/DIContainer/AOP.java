@@ -11,7 +11,31 @@ import java.lang.reflect.Proxy;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * Provides dynamic proxy-based aspect-oriented programming (AOP) support.
+ * This class allows for method-level interception based on custom annotations.
+ *
+ * The proxy can apply interceptors for "before", "after", and "onException" logic
+ * when a method is annotated with a registered annotation.
+ *
+ * If a method annotated with {@link ExceptionHandler} throws an exception,
+ * a fallback value may be returned based on the specified default return type.
+ *
+ * @author kimseunghyun-kr
+ * @since v0.1-cli
+ */
 public class AOP {
+
+    /**
+     * Creates a dynamic proxy for the given target object.
+     * The proxy intercepts method calls based on the provided annotations and applies corresponding interceptors.
+     *
+     * @param target         The original object being proxied.
+     * @param interceptors   A mapping of annotation classes to their corresponding interceptors.
+     * @param interfacesToProxy The interfaces that the proxy should implement.
+     * @param <T>           The type of the proxied object.
+     * @return A proxy instance that applies AOP logic.
+     */
     @SuppressWarnings("unchecked")
     public static <T> T createProxy(T target,
                                     Map<Class<? extends Annotation>, Interceptor> interceptors,
@@ -62,6 +86,14 @@ public class AOP {
         );
     }
 
+    /**
+     * Creates a fallback instance based on the specified fallback class.
+     * If the fallback class is {@link Optional}, an empty optional is returned.
+     * Otherwise, an instance is created using the default constructor if available.
+     *
+     * @param fallbackClass The fallback class specified in the {@link ExceptionHandler} annotation.
+     * @return A fallback instance, or {@code null} if instantiation fails.
+     */
     private static Object createFallback(Class<?> fallbackClass) {
         if (fallbackClass.isAssignableFrom(Optional.class)) {
             return Optional.empty();

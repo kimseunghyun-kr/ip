@@ -7,10 +7,23 @@ import service.ITaskService;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Factory class for creating instances of {@link Command} based on the provided {@link Actions}.
+ * Commands are instantiated dynamically and injected with an {@link ITaskService} instance.
+ */
 public class CommandFactory implements Proxiable {
+
+    /** The task service instance to be injected into created commands. */
     private final ITaskService taskService;
+
+    /** Maps actions to their corresponding command classes. */
     private static final Map<Actions, Class<? extends Command>> commandMap = new HashMap<>();
 
+    /**
+     * Constructs a {@code CommandFactory} with a given task service.
+     *
+     * @param taskService The task service instance to be used by created commands.
+     */
     public CommandFactory(ITaskService taskService) {
         this.taskService = taskService;
     }
@@ -26,6 +39,14 @@ public class CommandFactory implements Proxiable {
         commandMap.put(Actions.INVALID, InvalidCommand.class);
     }
 
+    /**
+     * Creates a command instance corresponding to the specified action.
+     * If the action is not recognized, an {@link InvalidCommand} is returned.
+     *
+     * @param action The action for which a command should be created.
+     * @return A new instance of the corresponding {@link Command}.
+     * @throws RuntimeException if an error occurs during command instantiation.
+     */
     public Command createCommand(Actions action) {
         Class<? extends Command> commandClass = commandMap.getOrDefault(action, InvalidCommand.class);
         try {

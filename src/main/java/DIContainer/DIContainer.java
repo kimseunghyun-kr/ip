@@ -10,32 +10,53 @@ import java.lang.reflect.*;
 import java.net.URL;
 import java.util.*;
 
+/**
+ * A lightweight dependency injection (DI) container with support for aspect-oriented programming (AOP).
+ * This container allows for registering, resolving, and managing object dependencies while supporting
+ * dynamic proxy-based interception using {@link ProxyEnabled} annotations.
+ * inspired by Spring.
+ *
+ * <p>Features:</p>
+ * <ul>
+ *     <li>Automatic dependency resolution using topological sorting.</li>
+ *     <li>Support for constructor argument injection.</li>
+ *     <li>Dynamic proxy generation for AOP-enabled classes/interfaces.</li>
+ *     <li>Interceptor support for methods annotated with custom annotations.</li>
+ * </ul>
+ *
+ * @author kimseunghyun-kr
+ * @since v0.1-cli
+ */
 public class DIContainer {
-    // Key = "requested type" (interface or class), Value = "implementation class"
+    /** Indicates whether the container has been initialized. */
+    private boolean initialized = false;
+
+    /** Maps a requested type (interface or class) to its registered implementation. */
     private final Map<Class<?>, Class<?>> registrations = new HashMap<>();
 
-    // For each class, store constructor-arg overrides
-    private final Map<Class<?>, Map<Class<?>, Object>> constructorArgs = new HashMap<>();
-
-    // After creation, store the fully built (and possibly proxied) instances
+    /** Stores instantiated objects after creation, possibly wrapped with proxies. */
     private final Map<Class<?>, Object> instances = new HashMap<>();
 
-    // Interceptors keyed by annotation type
-    private final Map<Class<? extends Annotation>, Interceptor> interceptors = new HashMap<>();
+    /** Stores constructor argument overrides for registered classes. */
+    private final Map<Class<?>, Map<Class<?>, Object>> constructorArgs = new HashMap<>();
 
-    // For topological sorting, store: class -> set of dependencies (the classes it needs in its constructor)
+    /** Dependency graph mapping each class to its required dependencies. */
     private final Map<Class<?>, Set<Class<?>>> dependencyGraph = new HashMap<>();
 
-    // Keep track of all classes or interfaces that have @ProxyEnabled or map to an @ProxyEnabled interface
+    /** Tracks types that require proxy-based AOP. */
     private final Set<Class<?>> proxyEnabledTypes = new HashSet<>();
 
-    // Whether we have completed the creation step
-    private boolean initialized = false;
+    /** Maps annotation types to their corresponding interceptors for method-level AOP. */
+    private final Map<Class<? extends Annotation>, Interceptor> interceptors = new HashMap<>();
+
 
     // ========== Registration Methods ==========
 
     /**
-     * Register a concrete class with specific constructor args.
+     * Registers a concrete class along with optional constructor arguments.
+     *
+     * @param type The class to register.
+     * @param args The constructor arguments for the class.
      */
     public void register(Class<?> type, Object... args) {
         // type is presumably a concrete class
@@ -47,7 +68,9 @@ public class DIContainer {
     }
 
     /**
-     * Register an interface or class without special constructor args.
+     * Registers an interface or abstract class, attempting to find an implementation.
+     *
+     * @param type The interface or abstract class to register.
      */
     public void register(Class<?> type) {
         if (type.isInterface() || Modifier.isAbstract(type.getModifiers())) {
@@ -101,7 +124,10 @@ public class DIContainer {
     }
 
     /**
-     * Record constructor arguments for a given class's single constructor.
+     * Stores constructor argument overrides for a registered class.
+     *
+     * @param type The class type.
+     * @param args The constructor arguments.
      */
     private void storeConstructorArgs(Class<?> type, Object... args) {
         Constructor<?> constructor = type.getConstructors()[0];
@@ -120,7 +146,9 @@ public class DIContainer {
     }
 
     /**
-     * Check if a type or interface is marked with @ProxyEnabled, and store that fact.
+     * Checks if a class or interface is annotated with {@link ProxyEnabled} and records it.
+     *
+     * @param type The class to check.
      */
     private void checkIfProxyEnabled(Class<?> type) {
         if (type.isAnnotationPresent(ProxyEnabled.class)) {
@@ -133,6 +161,7 @@ public class DIContainer {
     /**
      * Build or update the dependency graph for the given type.
      * If it's an interface, we look up its chosen implementation.
+     * @param type The class whose dependencies need to be tracked.
      */
     private void buildDependencyGraph(Class<?> type) {
         if (dependencyGraph.containsKey(type)) {
@@ -173,6 +202,8 @@ public class DIContainer {
 
     /**
      * Finds all concrete classes that implement a given interface in the same package.
+     *
+     * @param iface the interface class whose concrete class designations have to be found
      */
     private Set<Class<?>> findImplementations(Class<?> iface) {
         Set<Class<?>> results = new HashSet<>();
@@ -327,6 +358,7 @@ public class DIContainer {
     /**
      * Create (and store) a single instance for the given concrete class, respecting constructor args,
      * and possibly wrapping with a JDK proxy if needed.
+     * @param implClass The concrete class to instantiate.
      */
     private void createInstanceFor(Class<?> implClass) {
         // If already created, skip
@@ -368,6 +400,8 @@ public class DIContainer {
 
     /**
      * Actually calls the no-arg or single constructor to build the real instance.
+     *
+     * @param implClass the classes that will be instantiated stored within the registrations
      */
     private Object instantiate(Class<?> implClass) {
         try {
@@ -395,6 +429,8 @@ public class DIContainer {
 
     /**
      * If 'type' isn't built yet, find its impl, create that first (in topological order).
+     *
+     * @param type the class instance where the topological sort will start
      */
     private void createIfNotExists(Class<?> type) {
         if (instances.containsKey(type)) {
@@ -420,6 +456,8 @@ public class DIContainer {
 
     /**
      * Compute whether the given impl class or any of its mapped interfaces is @ProxyEnabled.
+     *
+     * @param implClass the concrete(implementation) class which is to be checked for
      */
     private boolean requiresProxy(Class<?> implClass) {
         // If the impl class itself is annotated with ProxyEnabled, yes
@@ -444,6 +482,8 @@ public class DIContainer {
 
     /**
      * Gather all interfaces from the class itself plus any container-registered interfaces that map to it.
+     *
+     * @param implClass the concrete(implemented) class for which the interfaces are resolved
      */
     private Class<?>[] computeAllInterfacesFor(Class<?> implClass) {
         Set<Class<?>> result = new HashSet<>();
@@ -466,6 +506,13 @@ public class DIContainer {
 
     // ========== Public Resolution ==========
 
+    /**
+     * Resolves an instance of the given type.
+     *
+     * @param type The class type.
+     * @param <T>  The type parameter.
+     * @return The resolved instance.
+     */
     public <T> T resolve(Class<T> type) {
         if (!initialized) {
             throw new IllegalStateException("Container not initialized yet");
@@ -476,6 +523,12 @@ public class DIContainer {
         return type.cast(instances.get(type));
     }
 
+    /**
+     * Registers an interceptor for methods annotated with a given annotation.
+     *
+     * @param annotation The annotation type.
+     * @param interceptor The interceptor instance.
+     */
     public void registerInterceptor(Class<? extends Annotation> annotation, Interceptor interceptor) {
         interceptors.put(annotation, interceptor);
     }

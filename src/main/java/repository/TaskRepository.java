@@ -25,8 +25,20 @@ public class TaskRepository implements ITaskRepository {
     }
 
     @Override
+    public Optional<Task> findById(UUID uuid) {
+        return Optional.ofNullable(storageMap.get(uuid));
+    }
+
+    @Override
     public List<Task> findAll() {
         return new ArrayList<>(storageList);
+    }
+
+    @Override
+    public Task deleteById(UUID uuid) {
+        Task task = storageMap.remove(uuid);
+        storageList.remove(task);
+        return task;
     }
 
     @Override
@@ -38,7 +50,7 @@ public class TaskRepository implements ITaskRepository {
     }
 
     @Override
-    public Task deleteById(Integer index) {
+    public Task deleteByOrder(Integer index) {
         if (index < 0 || index >= storageList.size()) {
             throw new UserFacingException("Index " + (index + 1) + " is out of bounds (1 - " + storageList.size() + ")");
         }

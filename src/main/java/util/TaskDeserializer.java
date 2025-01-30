@@ -8,7 +8,36 @@ import entity.tasks.ToDo;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+/**
+ * Utility class for deserializing task objects from string representations.
+ *
+ * <p>
+ * This class converts a serialized task string into a {@link Task} object by parsing
+ * its components such as UUID, type, completion status, name, and timestamps.
+ * </p>
+ */
 public class TaskDeserializer {
+
+    /**
+     * Deserializes a task from a formatted string.
+     *
+     * <p>Expected format: {@code UUID|TYPE|COMPLETED|NAME|[OPTIONAL_TIMESTAMPS]}</p>
+     * <ul>
+     *     <li>{@code UUID} - The unique identifier of the task.</li>
+     *     <li>{@code TYPE} - "T" (ToDo), "D" (Deadline), "E" (Event).</li>
+     *     <li>{@code COMPLETED} - "1" for completed, "0" for incomplete.</li>
+     *     <li>{@code NAME} - The task name or description.</li>
+     *     <li>{@code OPTIONAL_TIMESTAMPS} -
+     *         <ul>
+     *             <li>For Deadline: {@code dueBy}</li>
+     *             <li>For Event: {@code startAt | endBy}</li>
+     *         </ul>
+     *     </li>
+     * </ul>
+     *
+     * @param line The serialized task string.
+     * @return A {@link Task} object if the string is valid; otherwise, {@code null}.
+     */
     public static Task deserializeTask(String line) {
         String[] parts = line.split("\\|");
         if (parts.length < 4) return null; // Invalid format
@@ -28,15 +57,15 @@ public class TaskDeserializer {
 
                 case "D":
                     if (parts.length < 5) return null;
-                    LocalDateTime dueby = LocalDateTime.parse(parts[4]);
-                    task = new DeadLine(name, dueby);
+                    LocalDateTime dueBy = LocalDateTime.parse(parts[4]);
+                    task = new DeadLine(name, dueBy);
                     break;
 
                 case "E":
                     if (parts.length < 6) return null;
-                    LocalDateTime startat = LocalDateTime.parse(parts[4]);
-                    LocalDateTime endby = LocalDateTime.parse(parts[5]);
-                    task = new Events(name, startat, endby);
+                    LocalDateTime startAt = LocalDateTime.parse(parts[4]);
+                    LocalDateTime endBy = LocalDateTime.parse(parts[5]);
+                    task = new Events(name, startAt, endBy);
                     break;
 
                 default:

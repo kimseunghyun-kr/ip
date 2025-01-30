@@ -10,15 +10,40 @@ import java.util.stream.Collectors;
 import static util.TaskDeserializer.deserializeTask;
 import static util.TaskSerializer.serializeTask;
 
+/**
+ * A file-backed implementation of {@link IFileBackedTaskRepository}.
+ * This repository persists tasks to disk and manages buffered writes to reduce I/O operations.
+ *
+ * <p>
+ * Features:
+ * <ul>
+ *     <li>Uses a <b>dirty tracking system</b> to minimize unnecessary writes.</li>
+ *     <li>Flushes changes periodically via explicit calls or scheduled intervals.</li>
+ *     <li>Implements <b>backup and recovery</b> mechanisms to prevent data loss.</li>
+ * </ul>
+ * </p>
+ */
 public class FileBackedTaskRepository extends TaskRepository implements IFileBackedTaskRepository {
+
     private final Path filePath;
     private final Set<UUID> dirtySet = new HashSet<>(); // Tracks modified tasks
 
+    /**
+     * Constructs a {@code FileBackedTaskRepository} and loads existing tasks from the specified file.
+     *
+     * @param filePath The file path where tasks will be persisted.
+     */
     public FileBackedTaskRepository(Path filePath) {
         this.filePath = filePath;
         loadFromFile();
     }
 
+    /**
+     * Saves a task and marks it as modified.
+     *
+     * @param entity The task to save.
+     * @return The saved task.
+     */
     @Override
     public Task save(Task entity) {
         Task result = super.save(entity);
@@ -26,29 +51,50 @@ public class FileBackedTaskRepository extends TaskRepository implements IFileBac
         return result;
     }
 
+    /**
+     * Deletes a task by its order index and marks it for persistence.
+     *
+     * @param index The order index of the task to delete.
+     * @return The deleted task, or {@code null} if not found.
+     */
     @Override
-    public Task deleteById(Integer index) {
-        Task task = super.deleteById(index);
+    public Task deleteByOrder(Integer index) {
+        Task task = super.deleteByOrder(index);
         if (task != null) {
             dirtySet.add(task.getId()); // Mark as dirty (removal)
         }
         return task;
     }
 
+    /**
+     * Flushes all modified tasks to disk.
+     * If no changes were made, this operation is skipped.
+     */
     @Override
     public void flush() {
         if (dirtySet.isEmpty()) return; // No changes, skip flush
 
         System.out.println("Flushing modified tasks to file...");
         persistAll();
-        dirtySet.clear(); // Reset after flush
+        dirtySet.clear(); // Reset tracking
     }
 
+    /**
+     * Marks a task as modified, scheduling it for persistence.
+     *
+     * @param id The unique identifier of the task.
+     * @return The same {@link UUID} of the marked task.
+     */
     @Override
     public UUID markDirty(UUID id) {
         dirtySet.add(id); // Mark the task as modified
         return id;
     }
+
+    /**
+     * Persists all tasks to disk, overwriting the existing file.
+     * Maintains JSON formatting and ensures atomic writes.
+     */
     private void persistAll() {
         if (dirtySet.isEmpty()) return; // No changes, no need to persist
 
@@ -85,49 +131,10 @@ public class FileBackedTaskRepository extends TaskRepository implements IFileBac
         }
     }
 
-
-    private void persist() {
-        try {
-            backupCurrentFileIfExists();
-
-            Path tempFile = filePath.resolveSibling(filePath.getFileName() + ".tmp");
-
-            try (BufferedWriter writer = Files.newBufferedWriter(tempFile, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
-                writer.write("[\n");
-
-                List<Task> tasks = new ArrayList<>(super.storageList); // All tasks in order
-                int size = tasks.size();
-
-                for (int i = 0; i < size; i++) {
-                    Task task = tasks.get(i);
-
-                    // Ensure we write ALL tasks, but updated ones come from dirtySet
-                    if (dirtySet.contains(task.getId()) || !Files.exists(filePath)) {
-                        writer.write(serializeTask(task)); // Updated or new task
-                    } else {
-                        writer.write(serializeTask(task)); // Preserve old tasks
-                    }
-
-                    if (i < size - 1) {
-                        writer.write(",\n"); // Maintain JSON-like formatting
-                    } else {
-                        writer.write("\n"); // Final entry, no trailing comma
-                    }
-                }
-
-                writer.write("]\n");
-            }
-
-            Files.move(tempFile, filePath, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
-            dirtySet.clear(); // Reset dirty tracking after successful write
-
-        } catch (IOException e) {
-            System.err.println("Error persisting tasks: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-
+    /**
+     * Loads tasks from the file into memory.
+     * Ensures JSON validity and recovers from backup if needed.
+     */
     private void loadFromFile() {
         if (!Files.exists(filePath)) {
             return; // No file, start fresh
@@ -158,6 +165,11 @@ public class FileBackedTaskRepository extends TaskRepository implements IFileBac
         }
     }
 
+    /**
+     * Creates a backup of the current file before overwriting.
+     *
+     * @throws IOException If the backup operation fails.
+     */
     private void backupCurrentFileIfExists() throws IOException {
         if (Files.exists(filePath)) {
             Path backupPath = Paths.get(filePath.toString() + ".bak");
@@ -165,6 +177,9 @@ public class FileBackedTaskRepository extends TaskRepository implements IFileBac
         }
     }
 
+    /**
+     * Attempts to recover data from a backup file if the main file is corrupted.
+     */
     private void attemptBackupRecovery() {
         Path backupPath = Paths.get(filePath.toString() + ".bak");
         if (!Files.exists(backupPath)) {

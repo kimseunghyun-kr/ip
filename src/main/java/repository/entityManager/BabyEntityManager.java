@@ -50,7 +50,7 @@ public class BabyEntityManager {
             repository.save(t);
         }
         for (Integer id : removedEntities) {
-            repository.deleteById(id);
+            repository.deleteByOrder(id);
         }
         // clear staging
         newEntities.clear();

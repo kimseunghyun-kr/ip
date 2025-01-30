@@ -32,6 +32,11 @@ public class MockTaskRepository implements ITaskRepository, IFileBackedTaskRepos
     }
 
     @Override
+    public Optional<Task> findById(UUID uuid) {
+        return Optional.empty();
+    }
+
+    @Override
     public Optional<Task> findByOrder(Integer id) {
         return Optional.ofNullable(temptaskStore.get(id));
     }
@@ -42,7 +47,12 @@ public class MockTaskRepository implements ITaskRepository, IFileBackedTaskRepos
     }
 
     @Override
-    public Task deleteById(Integer id) {
+    public Task deleteById(UUID uuid) {
+        return null;
+    }
+
+    @Override
+    public Task deleteByOrder(Integer id) {
         Task task = temptaskStore.get(id);
         temptaskStore.remove((int)id);
         return task;
