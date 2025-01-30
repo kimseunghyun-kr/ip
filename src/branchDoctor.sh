@@ -1,65 +1,87 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Number of commits to modify (default: 5)
 NUM_COMMITS=${1:-5}
 
-# Start interactive rebase and mark all commits as "edit"
 echo "Starting interactive rebase for the last $NUM_COMMITS commits..."
-GIT_SEQUENCE_EDITOR="sed -i '' 's/^pick/edit/'" git rebase -i HEAD~$NUM_COMMITS || exit 1
 
-# Loop through each commit in chronological order
-for commit in $(git rev-list --reverse HEAD~$NUM_COMMITS..HEAD); do
-    # Get the current commit message
-    MESSAGE=$(git log --format=%B -n 1 "$commit")
+# Mark all commits as "edit" so we can amend each commit’s message
+GIT_SEQUENCE_EDITOR="sed -i '' 's/^pick/edit/'" \
+  git rebase -i HEAD~"$NUM_COMMITS" || exit 1
 
-    echo "Current commit message:"
-    echo "-----------------------------------"
-    echo "$MESSAGE"
-    echo "-----------------------------------"
+# Rebase processes from oldest to newest,
+# so let's iterate over them in chronological order
+for commit_hash in $(git rev-list --reverse HEAD~"$NUM_COMMITS"..HEAD); do
 
-    # Prompt the user for a new commit message (default to original if empty)
-    echo "Enter a new commit message (Press Enter to keep the original):"
-    read -r USER_INPUT
+  # Get the current commit message
+  ORIGINAL_MSG="$(git log --format=%B -n 1 "$commit_hash")"
 
-    if [[ -z "$USER_INPUT" ]]; then
-        FORMATTED_MSG="$MESSAGE"
-    else
-        FORMATTED_MSG="$USER_INPUT"
-    fi
+  echo "Current commit message:"
+  echo "-----------------------------------"
+  echo "$ORIGINAL_MSG"
+  echo "-----------------------------------"
 
-    # Apply formatting to the commit message
-    FORMATTED_MSG=$(echo "$FORMATTED_MSG" | awk '
-        NR == 1 {
-            # Capitalize first letter of subject
-            sub(/^./, toupper(substr($0,1,1)) substr($0,2))
-            # Remove trailing period from subject
-            sub(/\.$/, "")
-            # Limit subject to 72 characters
-            if (length > 72) {
-                $0 = substr($0, 1, 72)
-            }
-            print
-            print ""  # Ensure blank line after subject
-        }
-        NR > 1 { print } # Print body as is
-    ')
+  # Prompt for a new commit message
+  echo "Enter a new commit message (Press Enter to keep the original):"
+  read -r USER_INPUT
 
-    echo "Final commit message:"
-    echo "-----------------------------------"
-    echo "$FORMATTED_MSG"
-    echo "-----------------------------------"
+  # If user pressed Enter without typing anything, keep original
+  if [[ -z "$USER_INPUT" ]]; then
+    NEW_MSG="$ORIGINAL_MSG"
+  else
+    NEW_MSG="$USER_INPUT"
+  fi
 
-    # Preserve original commit timestamp
-    GIT_COMMITTER_DATE=$(git show -s --format=%ci "$commit")
+  # -- Below is a very simple “pure Bash” way to:
+  #    1) Grab the first line (the "subject")
+  #    2) Capitalize its first letter
+  #    3) Remove any trailing period
+  #    4) Put everything else into the body
+  #    5) Reassemble with one blank line between subject & body
 
-    # Amend the commit with the formatted message
-    GIT_COMMITTER_DATE="$GIT_COMMITTER_DATE" \
-    git commit --amend --no-edit --date "$GIT_COMMITTER_DATE" -m "$FORMATTED_MSG" || exit 1
+  # Split into lines
+  IFS=$'\n' read -r -d '' -a LINES <<< "${NEW_MSG}"$'\n' 2>/dev/null || true
 
-    # Continue rebase
-    git rebase --continue || exit 1
+  SUBJECT="${LINES[0]}"
+  BODY="${LINES[@]:1}"
+
+  # Capitalize first character in subject
+  if [[ -n "$SUBJECT" ]]; then
+    first_char="${SUBJECT:0:1}"
+    rest="${SUBJECT:1}"
+    # Uppercase the first char
+    first_char_up="$(printf "%s" "$first_char" | tr '[:lower:]' '[:upper:]')"
+    SUBJECT="${first_char_up}${rest}"
+    # Remove any trailing period from the subject
+    SUBJECT="${SUBJECT%.}"
+  fi
+
+  # Rebuild the final message
+  if [[ -n "$BODY" ]]; then
+    # Join body lines with newlines, preceded by one blank line
+    FINAL_MSG="$SUBJECT"$'\n\n'"$(printf "%s\n" "${BODY[@]}")"
+  else
+    FINAL_MSG="$SUBJECT"
+  fi
+
+  echo "Final commit message:"
+  echo "-----------------------------------"
+  echo "$FINAL_MSG"
+  echo "-----------------------------------"
+
+  # Keep original commit date
+  GIT_COMMITTER_DATE="$(git show -s --format=%ci "$commit_hash")"
+
+  # Amend commit with the new message
+  # (No '--no-edit' because we are explicitly providing '-m')
+  GIT_COMMITTER_DATE="$GIT_COMMITTER_DATE" \
+    git commit --amend --date="$GIT_COMMITTER_DATE" -m "$FINAL_MSG" || exit 1
+
+  # Move on
+  git rebase --continue || exit 1
+
 done
 
-# Force push the updated history
-echo "Rewriting commit history, force-pushing..."
+# Finally, force-push the updated history (optional)
+echo "Rewriting commit history, now force-pushing..."
 git push --force
