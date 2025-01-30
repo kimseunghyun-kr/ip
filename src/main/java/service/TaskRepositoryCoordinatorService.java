@@ -1,11 +1,13 @@
 package service;
 
+import java.util.UUID;
+
 import entity.tasks.Task;
 import exceptions.UserFacingException;
 import repository.IFileBackedTaskRepository;
 import repository.ITaskRepository;
 
-import java.util.UUID;
+
 
 public class TaskRepositoryCoordinatorService {
     private final ITaskRepository taskRepository;
@@ -16,16 +18,17 @@ public class TaskRepositoryCoordinatorService {
         this.taskBuffer = taskBuffer;
     }
 
-    public Task findByOrder(int orderIndex){
-        Task selectedTask = taskRepository.findByOrder(orderIndex - 1).orElseThrow(()->new UserFacingException("Task not found"));
-        if(selectedTask == null) {
+    public Task findByOrder(int orderIndex) {
+        Task selectedTask = taskRepository.findByOrder(orderIndex - 1)
+                .orElseThrow(()->new UserFacingException("Task not found"));
+        if (selectedTask == null) {
             throw new UserFacingException("Task not found");
         }
         return selectedTask;
     }
 
 
-    void markDirty(UUID uuid){
+    void markDirty(UUID uuid) {
         taskBuffer.markDirty(uuid);
     }
 

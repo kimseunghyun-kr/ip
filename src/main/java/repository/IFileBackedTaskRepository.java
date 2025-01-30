@@ -1,8 +1,7 @@
 package repository;
 
-import DIContainer.AOPInterfaces.AnnotationInterfaces.ProxyEnabled;
-import DIContainer.Proxiable;
-import repository.FileBackedTaskRepository;
+import dicontainer.aopinterfaces.annotationinterfaces.ProxyEnabled;
+import dicontainer.Proxiable;
 
 import java.util.UUID;
 

@@ -1,4 +1,4 @@
-package DIContainer;
+package dicontainer;
 
 /**
  * a marker interface to signal proxiability of a class

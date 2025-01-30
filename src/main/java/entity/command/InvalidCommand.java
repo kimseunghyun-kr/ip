@@ -1,14 +1,18 @@
-package entity.Command;
-
-import service.ITaskService;
+package entity.command;
 
 import java.util.List;
 
+import service.ITaskService;
+
+
+
+/**
+ * Represents the "Invalid / No-op" command in the task management system.
+ * Behaves more closely as a sentinel value to determine when to trigger exception for invalid commands
+ */
 public class InvalidCommand implements Command {
-    private ITaskService taskService;
     @Override
     public void setTaskService(ITaskService taskService) {
-        this.taskService = taskService;
     }
 
     @Override

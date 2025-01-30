@@ -1,8 +1,9 @@
 package runtime;
 
-import DIContainer.AOPInterfaces.AnnotationInterfaces.ExceptionHandler;
-import DIContainer.AOPInterfaces.AnnotationInterfaces.ProxyEnabled;
-import DIContainer.Proxiable;
+import dicontainer.Proxiable;
+import dicontainer.aopinterfaces.annotationinterfaces.ExceptionHandler;
+import dicontainer.aopinterfaces.annotationinterfaces.ProxyEnabled;
+
 /**
  * Defines the contract for a bot runtime execution.
  * This interface is proxy-enabled and supports exception handling via AOP.

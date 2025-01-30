@@ -22,7 +22,7 @@ public class Task {
         isCompleted = !isCompleted;
     }
 
-    public String rename(String newName){
+    public String rename(String newName) {
         this.name = newName;
         return newName;
     }
@@ -30,7 +30,7 @@ public class Task {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        if(isCompleted){
+        if (isCompleted) {
             builder.append("[X] ");
         } else {
             builder.append("[ ] ");

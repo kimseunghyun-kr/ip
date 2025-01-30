@@ -35,12 +35,10 @@ public class TaskSerializer {
 
         sb.append(task.getId()).append("|");
 
-        if (task instanceof DeadLine) {
-            DeadLine dl = (DeadLine) task;
+        if (task instanceof DeadLine dl) {
             sb.append("D|").append(dl.getCompleted() ? "1" : "0").append("|")
                     .append(dl.getName()).append("|").append(dl.getDueby());
-        } else if (task instanceof Events) {
-            Events ev = (Events) task;
+        } else if (task instanceof Events ev) {
             sb.append("E|").append(ev.getCompleted() ? "1" : "0").append("|")
                     .append(ev.getName()).append("|").append(ev.getStartat()).append("|").append(ev.getEndby());
         } else if (task instanceof ToDo) {

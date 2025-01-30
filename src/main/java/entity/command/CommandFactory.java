@@ -1,24 +1,23 @@
-package entity.Command;
-
-import DIContainer.Proxiable;
-import entity.Actions;
-import service.ITaskService;
+package entity.command;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import dicontainer.Proxiable;
+import entity.Actions;
+import service.ITaskService;
+
+
 
 /**
  * Factory class for creating instances of {@link Command} based on the provided {@link Actions}.
  * Commands are instantiated dynamically and injected with an {@link ITaskService} instance.
  */
 public class CommandFactory implements Proxiable {
-
-    /** The task service instance to be injected into created commands. */
-    private final ITaskService taskService;
-
     /** Maps actions to their corresponding command classes. */
     private static final Map<Actions, Class<? extends Command>> commandMap = new HashMap<>();
-
+    /** The task service instance to be injected into created commands. */
+    private final ITaskService taskService;
     /**
      * Constructs a {@code CommandFactory} with a given task service.
      *
@@ -38,7 +37,6 @@ public class CommandFactory implements Proxiable {
         commandMap.put(Actions.SEARCH, SearchCommand.class);
         commandMap.put(Actions.INVALID, InvalidCommand.class);
     }
-
     /**
      * Creates a command instance corresponding to the specified action.
      * If the action is not recognized, an {@link InvalidCommand} is returned.

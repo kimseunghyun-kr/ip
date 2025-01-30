@@ -1,10 +1,17 @@
-package entity.Command;
+package entity.command;
+
+import java.util.List;
 
 import exceptions.UserFacingException;
 import service.ITaskService;
 
-import java.util.List;
 
+
+/**
+ * Represents the "Listing " command in the task management system.
+ * This command interacts with {@link ITaskService} to list all tasks
+ * based on the provided parameters.
+ */
 public class ListCommand implements Command {
     private ITaskService taskService;
 

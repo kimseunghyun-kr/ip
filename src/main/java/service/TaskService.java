@@ -136,7 +136,7 @@ public class TaskService implements ITaskService {
      * @throws UserFacingException if the provided string is not a valid UUID.
      */
     @Override
-    public String SearchOrder(String uuidstr) {
+    public String searchOrder(String uuidstr) {
         try{
             UUID uuid = UUID.fromString(uuidstr);
             return Integer.valueOf(taskRepository.findOrder(uuid)).toString();
@@ -152,7 +152,7 @@ public class TaskService implements ITaskService {
      * @return A formatted list of matching tasks.
      */
     @Override
-    public String SearchByKeyword(String keyword) {
+    public String searchByKeyword(String keyword) {
         List<Task> taskContainingKeyword = taskRepository.findTaskWithKeyword(keyword);
         StringBuilder sb = new StringBuilder();
         sb.append("The following tasks have been searched\n");
@@ -172,7 +172,7 @@ public class TaskService implements ITaskService {
      * @return A formatted list of tasks within the given date range.
      */
     @Override
-    public String SearchByDate(TaskType type, LocalDateTime from, LocalDateTime to) {
+    public String searchByDate(TaskType type, LocalDateTime from, LocalDateTime to) {
         List<Task> withinDates = taskRepository.findAllFromWhenToWhen(type, from, to);
         StringBuilder sb = new StringBuilder();
         sb.append("The following tasks have been searched\n");

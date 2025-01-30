@@ -1,17 +1,16 @@
 package runtime;
 
-import DIContainer.Proxiable;
-import entity.Actions;
-import entity.Command.AddCommand;
-import entity.Command.Command;
-import entity.Command.CommandFactory;
-import exceptions.UserFacingException;
-import util.CommandMapper;
-
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import dicontainer.Proxiable;
+import entity.Actions;
+import entity.command.AddCommand;
+import entity.command.Command;
+import entity.command.CommandFactory;
+import exceptions.UserFacingException;
+import util.CommandMapper;
 
 /**
  * Handles user commands and resolves them into appropriate actions.
@@ -36,7 +35,7 @@ public class ActionHandler implements Proxiable {
      * @return The executed {@link Command} instance.
      * @throws UserFacingException If the command is invalid or deprecated.
      */
-    public CommandDAO resolveAction(String input) throws UserFacingException {
+    public CommandDao resolveAction(String input) throws UserFacingException {
         String[] split = input.trim().split(" ");
         String command = split[0];
 
@@ -47,8 +46,8 @@ public class ActionHandler implements Proxiable {
 
         Command generatedCommand = commandFactory.createCommand(action);
         if (generatedCommand instanceof AddCommand) {
-            parameters.add(0,command);
+            parameters.add(0, command);
         }
-        return new CommandDAO(generatedCommand, parameters);
+        return new CommandDao(generatedCommand, parameters);
     }
 }
