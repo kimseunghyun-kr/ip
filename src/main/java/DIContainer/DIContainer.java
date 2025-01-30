@@ -6,268 +6,477 @@ import DIContainer.AOPInterfaces.Interceptor;
 import java.io.File;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.*;
 import java.net.URL;
 import java.util.*;
 
-
 public class DIContainer {
-    private final Map<Class<?>, Object> instances = new HashMap<>();
+    // Key = "requested type" (interface or class), Value = "implementation class"
     private final Map<Class<?>, Class<?>> registrations = new HashMap<>();
+
+    // For each class, store constructor-arg overrides
+    private final Map<Class<?>, Map<Class<?>, Object>> constructorArgs = new HashMap<>();
+
+    // After creation, store the fully built (and possibly proxied) instances
+    private final Map<Class<?>, Object> instances = new HashMap<>();
+
+    // Interceptors keyed by annotation type
     private final Map<Class<? extends Annotation>, Interceptor> interceptors = new HashMap<>();
+
+    // For topological sorting, store: class -> set of dependencies (the classes it needs in its constructor)
     private final Map<Class<?>, Set<Class<?>>> dependencyGraph = new HashMap<>();
-    private final Set<Class<?>> proxyEnabledClasses = new HashSet<>();
 
+    // Keep track of all classes or interfaces that have @ProxyEnabled or map to an @ProxyEnabled interface
+    private final Set<Class<?>> proxyEnabledTypes = new HashSet<>();
 
+    // Whether we have completed the creation step
+    private boolean initialized = false;
+
+    // ========== Registration Methods ==========
+
+    /**
+     * Register a concrete class with specific constructor args.
+     */
+    public void register(Class<?> type, Object... args) {
+        // type is presumably a concrete class
+        registrations.put(type, type);
+        storeConstructorArgs(type, args);
+        // Build dependency graph for 'type'
+        buildDependencyGraph(type);
+        checkIfProxyEnabled(type);
+    }
+
+    /**
+     * Register an interface or class without special constructor args.
+     */
     public void register(Class<?> type) {
-        // 1) Check if `type` is an interface or abstract class
         if (type.isInterface() || Modifier.isAbstract(type.getModifiers())) {
-
-            // a) If it's explicitly annotated with @ProxyEnabled, treat that like a primary
+            // We see if it's annotated with @ProxyEnabled
             if (type.isAnnotationPresent(ProxyEnabled.class)) {
-                ProxyEnabled proxyEnabled = type.getAnnotation(ProxyEnabled.class);
-                Class<?> implClass = proxyEnabled.implementation();
-                if (implClass == null) {
-                    throw new IllegalStateException(
-                            "@ProxyEnabled on " + type.getName() + " is missing an implementation class."
-                    );
+                ProxyEnabled annot = type.getAnnotation(ProxyEnabled.class);
+                Class<?> impl = annot.implementation();
+                if (impl == null) {
+                    throw new IllegalArgumentException("@ProxyEnabled on " + type + " missing implementation()");
                 }
-
-                // Map the interface -> the chosen implementation
-                registrations.put(type, implClass);
-
-                // Mark the interface as proxy-eligible
-                proxyEnabledClasses.add(type);
-
-                // Build the dependency graph for the chosen impl
-                buildDependencyGraph(implClass);
-
+                registrations.put(type, impl);
+                checkIfProxyEnabled(type);
+                buildDependencyGraph(impl);
             } else {
-                // b) Otherwise, auto-discover implementing classes
-                Set<Class<?>> implementations = findImplementations(type);
-                if (implementations.isEmpty()) {
-                    throw new RuntimeException(
-                            "No implementations found for " + type.getName()
-                    );
-                }
-
-                // If only one, register it directly
-                if (implementations.size() == 1) {
-                    Class<?> singleImpl = implementations.iterator().next();
+                // We attempt to auto-discover an impl class
+                Set<Class<?>> impls = findImplementations(type);
+                if (impls.isEmpty()) {
+                    throw new RuntimeException("No implementations found for interface: " + type.getName());
+                } else if (impls.size() == 1) {
+                    Class<?> singleImpl = impls.iterator().next();
                     registrations.put(type, singleImpl);
                     buildDependencyGraph(singleImpl);
-                }
-                else {
-                    // Multiple found. In Spring, you'd look for @Primary among them,
-                    // or you could fail or pick the first.
-                    // For example:
-                    Class<?> primaryImpl = null;
-                    for (Class<?> impl : implementations) {
-                        if (impl.isAnnotationPresent(ProxyEnabled.class)) {
-                            // Let's treat that as "primary".
-                            if (primaryImpl != null) {
-                                // If multiple have ProxyEnabled, you might want to fail or
-                                // pick a single one (like first).
-                                throw new RuntimeException(
-                                        "Multiple @ProxyEnabled (primary) candidates found for " + type.getName()
-                                );
-                            }
-                            primaryImpl = impl;
+                    checkIfProxyEnabled(singleImpl);
+                } else {
+                    // multiple possible impls => pick one, or fail
+                    // For simplicity, pick the first that might have @ProxyEnabled
+                    Class<?> primary = null;
+                    for (Class<?> c : impls) {
+                        if (c.isAnnotationPresent(ProxyEnabled.class)) {
+                            primary = c;
+                            break;
                         }
                     }
-
-                    if (primaryImpl == null) {
-                        // If none are marked, you can fail or pick one
+                    if (primary == null) {
                         throw new RuntimeException(
                                 "Multiple implementations found for " + type.getName() +
-                                        ", no @ProxyEnabled or 'primary' annotation to pick from."
+                                        " and none is @ProxyEnabled to pick as primary"
                         );
                     }
-
-                    // Register the primary
-                    registrations.put(type, primaryImpl);
-                    // If you want to also treat it as proxy-eligible:
-                    proxyEnabledClasses.add(type);
-
-                    buildDependencyGraph(primaryImpl);
+                    registrations.put(type, primary);
+                    buildDependencyGraph(primary);
+                    checkIfProxyEnabled(primary);
                 }
             }
-        }
-        else {
-            // 2) It's a concrete class
+        } else {
+            // It's a concrete class
             registrations.put(type, type);
             buildDependencyGraph(type);
+            checkIfProxyEnabled(type);
         }
     }
 
+    /**
+     * Record constructor arguments for a given class's single constructor.
+     */
+    private void storeConstructorArgs(Class<?> type, Object... args) {
+        Constructor<?> constructor = type.getConstructors()[0];
+        if (args.length != constructor.getParameterCount()) {
+            throw new IllegalArgumentException(
+                    "Constructor arg mismatch for " + type.getName() +
+                            ": expected " + constructor.getParameterCount() + " but got " + args.length
+            );
+        }
+        Class<?>[] paramTypes = constructor.getParameterTypes();
+        Map<Class<?>, Object> map = new HashMap<>();
+        for (int i = 0; i < paramTypes.length; i++) {
+            map.put(paramTypes[i], args[i]);
+        }
+        constructorArgs.put(type, map);
+    }
 
-    private Set<Class<?>> findImplementations(Class<?> interfaceType) {
-        Set<Class<?>> implementations = new HashSet<>();
+    /**
+     * Check if a type or interface is marked with @ProxyEnabled, and store that fact.
+     */
+    private void checkIfProxyEnabled(Class<?> type) {
+        if (type.isAnnotationPresent(ProxyEnabled.class)) {
+            proxyEnabledTypes.add(type);
+        }
+    }
 
-        // Use the ClassLoader to locate classes in the same package as the interface
-        String packageName = interfaceType.getPackageName();
-        String relativePath = packageName.replace('.', '/');
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+    // ========== Dependency Graph Building ==========
+
+    /**
+     * Build or update the dependency graph for the given type.
+     * If it's an interface, we look up its chosen implementation.
+     */
+    private void buildDependencyGraph(Class<?> type) {
+        if (dependencyGraph.containsKey(type)) {
+            // Already processed
+            return;
+        }
+        // If it's an interface, get the chosen impl
+        if (type.isInterface() || Modifier.isAbstract(type.getModifiers())) {
+            Class<?> impl = registrations.get(type);
+            if (impl == null) {
+                throw new RuntimeException("No implementation found for " + type.getName());
+            }
+            // Recursively build graph for the impl
+            buildDependencyGraph(impl);
+            // We store an empty set for the interface itself, or you might omit
+            dependencyGraph.put(type, Collections.emptySet());
+            return;
+        }
+
+        // It's a concrete class => find its constructor dependencies
+        Constructor<?> constructor = type.getConstructors()[0];
+        Set<Class<?>> deps = new HashSet<>();
+        Class<?>[] paramTypes = constructor.getParameterTypes();
+
+        // Possibly skip param if we have a direct constructorArg
+        Map<Class<?>, Object> argsMap = constructorArgs.getOrDefault(type, new HashMap<>());
+
+        for (Class<?> paramType : paramTypes) {
+            // If paramType isn't satisfied by a direct argument, it's a real dependency
+            if (!argsMap.containsKey(paramType)) {
+                deps.add(paramType);
+                // We also want to build their graph
+                buildDependencyGraph(paramType);
+            }
+        }
+        dependencyGraph.put(type, deps);
+    }
+
+    /**
+     * Finds all concrete classes that implement a given interface in the same package.
+     */
+    private Set<Class<?>> findImplementations(Class<?> iface) {
+        Set<Class<?>> results = new HashSet<>();
+        String pkgName = iface.getPackageName();
+        String path = pkgName.replace('.', '/');
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
 
         try {
-            Enumeration<URL> resources = classLoader.getResources(relativePath);
-
+            Enumeration<URL> resources = cl.getResources(path);
             while (resources.hasMoreElements()) {
                 URL resource = resources.nextElement();
-                File directory = new File(resource.getFile());
-
-                if (directory.exists()) {
-                    implementations.addAll(findClasses(directory, packageName, interfaceType));
+                File dir = new File(resource.getFile());
+                if (dir.exists()) {
+                    results.addAll(findClasses(dir, pkgName, iface));
                 }
             }
         } catch (IOException e) {
-            throw new RuntimeException("Failed to find implementations for interface: " + interfaceType.getName(), e);
+            e.printStackTrace();
         }
-
-        return implementations;
+        return results;
     }
 
-    private Set<Class<?>> findClasses(File directory, String packageName, Class<?> interfaceType) {
-        Set<Class<?>> classes = new HashSet<>();
-        if (!directory.exists()) {
-            return classes;
-        }
+    private Set<Class<?>> findClasses(File dir, String pkgName, Class<?> iface) {
+        Set<Class<?>> found = new HashSet<>();
+        if (!dir.exists()) return found;
+        File[] files = dir.listFiles();
+        if (files == null) return found;
 
-        File[] files = directory.listFiles();
-        if (files == null) return classes;
-
-        for (File file : files) {
-            if (file.isDirectory()) {
-                // Recurse into subdirectories
-                classes.addAll(findClasses(file, packageName + "." + file.getName(), interfaceType));
-            } else if (file.getName().endsWith(".class")) {
-                String className = packageName + '.' + file.getName().replace(".class", "");
-
+        for (File f : files) {
+            if (f.isDirectory()) {
+                found.addAll(findClasses(f, pkgName + "." + f.getName(), iface));
+            } else if (f.getName().endsWith(".class")) {
+                String clsName = pkgName + "." + f.getName().replace(".class", "");
                 try {
-                    Class<?> clazz = Class.forName(className);
-
-                    // Check if the class implements the given interface and is concrete
-                    if (interfaceType.isAssignableFrom(clazz) && !clazz.isInterface()
-                            && !Modifier.isAbstract(clazz.getModifiers())) {
-                        classes.add(clazz);
+                    Class<?> c = Class.forName(clsName);
+                    if (iface.isAssignableFrom(c)
+                            && !c.isInterface()
+                            && !Modifier.isAbstract(c.getModifiers())) {
+                        found.add(c);
                     }
                 } catch (ClassNotFoundException e) {
-                    // Skip classes that cannot be loaded
-                    e.printStackTrace();
+                    // ignore
                 }
             }
         }
 
-        return classes;
+        return found;
     }
 
+    // ========== Initialization & Topological Sort ==========
+
+    /**
+     * Perform a topological sort of the entire dependency graph, then instantiate each in order.
+     */
+    public void initialize() {
+        if (initialized) {
+            return;
+        }
+        // 1) Gather all unique nodes (interfaces and classes)
+        Set<Class<?>> allTypes = dependencyGraph.keySet();
+
+        // 2) We do Kahn's Algorithm or a DFS-based approach to get a topological order
+        List<Class<?>> topoOrder = topologicalSortDFS(allTypes, dependencyGraph);
+
+        // 3) Build instances in that order
+        for (Class<?> type : topoOrder) {
+            // We skip interfaces that have no real constructor
+            // but we ensure the impl is built. For a plain class, we build it if not built yet.
+            if (type.isInterface() || Modifier.isAbstract(type.getModifiers())) {
+                // The real instance will be created when its impl class is built.
+                continue;
+            }
+            if (!instances.containsKey(type)) {
+                // create the real object (and possibly wrap in a proxy)
+                createInstanceFor(type);
+            }
+        }
+
+        // 4) Also ensure any interface not yet in 'instances' is associated with the same proxied instance
+        //    if it maps to a known implementation
+        for (Map.Entry<Class<?>, Class<?>> e : registrations.entrySet()) {
+            Class<?> intfOrClass = e.getKey();
+            Class<?> impl = e.getValue();
+            if (!instances.containsKey(intfOrClass) && instances.containsKey(impl)) {
+                // Link it
+                instances.put(intfOrClass, instances.get(impl));
+            }
+        }
+
+        initialized = true;
+    }
+
+    /**
+     * Perform a Kahn's Algorithm topological sort to detect cycles and produce an order.
+     */
+    private List<Class<?>> topologicalSortDFS(Set<Class<?>> nodes,
+                                              Map<Class<?>, Set<Class<?>>> graph) {
+        // 'graph[A]' = set of classes that A depends on
+
+        List<Class<?>> sortedList = new ArrayList<>();
+        Set<Class<?>> visited = new HashSet<>();   // permanent mark
+        Set<Class<?>> visiting = new HashSet<>();  // temporary mark (detect cycles)
+
+        for (Class<?> node : nodes) {
+            if (!visited.contains(node)) {
+                dfsVisit(node, graph, visited, visiting, sortedList);
+            }
+        }
+        // The result is in "reverse" topological order if you append after visiting.
+        // But we want dependencies first, so we can either reverse at the end or insert at the front.
+        // Let's reverse at the end:
+        Collections.reverse(sortedList);
+        return sortedList;
+    }
+
+    private void dfsVisit(Class<?> current,
+                          Map<Class<?>, Set<Class<?>>> graph,
+                          Set<Class<?>> visited,
+                          Set<Class<?>> visiting,
+                          List<Class<?>> sortedList) {
+        if (visiting.contains(current)) {
+            // We found a back edge => cycle
+            throw new RuntimeException("Cycle detected in dependency graph at: " + current.getName());
+        }
+        if (visited.contains(current)) {
+            // Already fully processed this node
+            return;
+        }
+
+        // Mark 'current' as in progress
+        visiting.add(current);
+
+        // Visit all dependencies (the classes that 'current' depends on)
+        Set<Class<?>> dependencies = graph.getOrDefault(current, Collections.emptySet());
+        for (Class<?> dep : dependencies) {
+            if (!visited.contains(dep)) {
+                dfsVisit(dep, graph, visited, visiting, sortedList);
+            }
+        }
+
+        // Mark 'current' as fully visited
+        visiting.remove(current);
+        visited.add(current);
+
+        // Add to the result list. We'll reverse later.
+        sortedList.add(current);
+    }
+
+
+    // ========== Instantiation & AOP Proxy Wrapping ==========
+
+    /**
+     * Create (and store) a single instance for the given concrete class, respecting constructor args,
+     * and possibly wrapping with a JDK proxy if needed.
+     */
+    private void createInstanceFor(Class<?> implClass) {
+        // If already created, skip
+        if (instances.containsKey(implClass)) {
+            return;
+        }
+
+        // 1) Actually instantiate the object
+        Object realObj = instantiate(implClass);
+
+        // 2) Check if we need a proxy for it
+        //    This is the "unified proxy" step: if this impl or any interface mapped to it is @ProxyEnabled
+        if (requiresProxy(implClass)) {
+            // gather all relevant interfaces
+            Class<?>[] allIfaces = computeAllInterfacesFor(implClass);
+            Object proxy = AOP.createProxy(realObj, interceptors, allIfaces);
+
+            // store the proxy
+            instances.put(implClass, proxy);
+
+            // also store under any interface keys
+            for (Map.Entry<Class<?>, Class<?>> e : registrations.entrySet()) {
+                if (e.getValue().equals(implClass)) {
+                    instances.put(e.getKey(), proxy);
+                }
+            }
+        } else {
+            // no proxy needed
+            instances.put(implClass, realObj);
+
+            // store under any interface that points here
+            for (Map.Entry<Class<?>, Class<?>> e : registrations.entrySet()) {
+                if (e.getValue().equals(implClass)) {
+                    instances.put(e.getKey(), realObj);
+                }
+            }
+        }
+    }
+
+    /**
+     * Actually calls the no-arg or single constructor to build the real instance.
+     */
+    private Object instantiate(Class<?> implClass) {
+        try {
+            Constructor<?> constructor = implClass.getConstructors()[0];
+            Class<?>[] paramTypes = constructor.getParameterTypes();
+            Object[] args = new Object[paramTypes.length];
+
+            Map<Class<?>, Object> directArgs = constructorArgs.getOrDefault(implClass, new HashMap<>());
+            for (int i = 0; i < paramTypes.length; i++) {
+                if (directArgs.containsKey(paramTypes[i])) {
+                    args[i] = directArgs.get(paramTypes[i]);
+                } else {
+                    // must be a class or interface we already built
+                    // or about to build? But topological order ensures it's already built if it was a dependency
+                    createIfNotExists(paramTypes[i]);
+                    args[i] = instances.get(paramTypes[i]);
+                }
+            }
+            return constructor.newInstance(args);
+        } catch (InstantiationException | IllegalAccessException
+                 | InvocationTargetException e) {
+            throw new RuntimeException("Failed creating instance for " + implClass, e);
+        }
+    }
+
+    /**
+     * If 'type' isn't built yet, find its impl, create that first (in topological order).
+     */
+    private void createIfNotExists(Class<?> type) {
+        if (instances.containsKey(type)) {
+            return;
+        }
+        if (type.isInterface() || Modifier.isAbstract(type.getModifiers())) {
+            Class<?> impl = registrations.get(type);
+            // ensure that impl is created
+            if (impl != null) {
+                if (!instances.containsKey(impl)) {
+                    createInstanceFor(impl);
+                }
+                // link it
+                instances.put(type, instances.get(impl));
+            } else {
+                throw new RuntimeException("No impl for " + type.getName());
+            }
+        } else {
+            // it's a concrete class
+            createInstanceFor(type);
+        }
+    }
+
+    /**
+     * Compute whether the given impl class or any of its mapped interfaces is @ProxyEnabled.
+     */
+    private boolean requiresProxy(Class<?> implClass) {
+        // If the impl class itself is annotated with ProxyEnabled, yes
+        if (implClass.isAnnotationPresent(ProxyEnabled.class)) {
+            return true;
+        }
+        // If the container flagged it
+        if (proxyEnabledTypes.contains(implClass)) {
+            return true;
+        }
+        // If any interface that maps to this impl is @ProxyEnabled
+        for (Map.Entry<Class<?>, Class<?>> e : registrations.entrySet()) {
+            if (e.getValue().equals(implClass)) {
+                Class<?> intf = e.getKey();
+                if (intf.isAnnotationPresent(ProxyEnabled.class) || proxyEnabledTypes.contains(intf)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Gather all interfaces from the class itself plus any container-registered interfaces that map to it.
+     */
+    private Class<?>[] computeAllInterfacesFor(Class<?> implClass) {
+        Set<Class<?>> result = new HashSet<>();
+        // 1) All directly implemented interfaces from the class hierarchy
+        Class<?> c = implClass;
+        while (c != null && c != Object.class) {
+            for (Class<?> i : c.getInterfaces()) {
+                result.add(i);
+            }
+            c = c.getSuperclass();
+        }
+        // 2) All interfaces in 'registrations' that point to implClass
+        for (Map.Entry<Class<?>, Class<?>> e : registrations.entrySet()) {
+            if (e.getValue().equals(implClass) && e.getKey().isInterface()) {
+                result.add(e.getKey());
+            }
+        }
+        return result.toArray(new Class<?>[0]);
+    }
+
+    // ========== Public Resolution ==========
+
+    public <T> T resolve(Class<T> type) {
+        if (!initialized) {
+            throw new IllegalStateException("Container not initialized yet");
+        }
+        if (!instances.containsKey(type)) {
+            throw new RuntimeException("No instance found for " + type.getName());
+        }
+        return type.cast(instances.get(type));
+    }
 
     public void registerInterceptor(Class<? extends Annotation> annotation, Interceptor interceptor) {
         interceptors.put(annotation, interceptor);
     }
-
-    public <T> T resolve(Class<T> type) {
-        if (!registrations.containsKey(type)) {
-            throw new IllegalStateException("Type not registered: " + type.getName());
-        }
-
-        Object instance = instances.computeIfAbsent(type, this::createInstance);
-
-        // If type is in proxyEnabledClasses (meaning the interface was annotated),
-        // and we have interceptors, build a JDK proxy
-        if (proxyEnabledClasses.contains(type) && !interceptors.isEmpty()) {
-            Class<?> implementationClass = registrations.get(type);
-            Class<?>[] interfaces = getAllInterfaces(implementationClass);
-            instance = AOP.createProxy(instance, interceptors, interfaces);
-        }
-
-        return type.cast(instance);
-    }
-
-
-    private Object createInstance(Class<?> type) {
-        try {
-            Constructor<?> constructor = registrations.get(type).getConstructors()[0];
-            Class<?>[] paramTypes = constructor.getParameterTypes();
-            Object[] dependencies = new Object[paramTypes.length];
-
-            for (int i = 0; i < paramTypes.length; i++) {
-                dependencies[i] = resolve(paramTypes[i]); // Recursively resolve dependencies
-            }
-
-            return constructor.newInstance(dependencies);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to create instance for type: " + type, e);
-        }
-    }
-
-    private void buildDependencyGraph(Class<?> type) {
-        if (dependencyGraph.containsKey(type)) {
-            return; // Graph already built for this type
-        }
-
-        Set<Class<?>> dependencies = new HashSet<>();
-
-        if (type.isInterface()) {
-            // If it's an interface, we can't analyze its dependencies directly.
-            // We'll assume the implementation will be resolved later.
-            Class<?> implementation = registrations.get(type);
-            System.out.println(implementation);
-            if (implementation == null) {
-                throw new RuntimeException("No implementation registered for interface: " + type.getName());
-            }
-            buildDependencyGraph(implementation);
-        } else {
-            try {
-                Constructor<?> constructor = type.getConstructors()[0]; // Assume a single constructor
-                for (Class<?> dependency : constructor.getParameterTypes()) {
-                    dependencies.add(dependency);
-                    buildDependencyGraph(dependency); // Build recursively
-                }
-            } catch (Exception e) {
-                throw new RuntimeException("Failed to analyze dependencies for: " + type, e);
-            }
-        }
-
-        dependencyGraph.put(type, dependencies);
-    }
-
-    public void initialize() {
-        // Sort the types by dependency depth and resolve them in order
-        Set<Class<?>> visited = new HashSet<>();
-        for (Class<?> type : registrations.keySet()) {
-            resolveDependenciesInOrder(type, visited);
-        }
-    }
-
-    private void resolveDependenciesInOrder(Class<?> type, Set<Class<?>> visited) {
-        if (visited.contains(type)) {
-            return; // Already processed
-        }
-
-        // Resolve dependencies first
-        for (Class<?> dependency : dependencyGraph.getOrDefault(type, Set.of())) {
-            resolveDependenciesInOrder(dependency, visited);
-        }
-
-        // Resolve the current type
-        resolve(type);
-        visited.add(type);
-    }
-
-    private Class<?>[] getAllInterfaces(Class<?> clazz) {
-        Set<Class<?>> allInterfaces = new HashSet<>();
-        while (clazz != null && clazz != Object.class) {
-            for (Class<?> ifc : clazz.getInterfaces()) {
-                allInterfaces.add(ifc);
-            }
-            clazz = clazz.getSuperclass();
-        }
-        return allInterfaces.toArray(new Class<?>[0]);
-    }
-
-
-
-
 }
