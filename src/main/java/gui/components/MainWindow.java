@@ -47,7 +47,7 @@ public class MainWindow extends AnchorPane {
 
     private void begin() {
         dialogContainer.getChildren().addAll(
-                DialogBox.getDialogBox("hi this is REM, your personal task manager."
+                DialogBox.getDialogBox("hi this is Amiya, your personal task manager."
                         + " How may i help you today", dukeImage)
         );
     }
