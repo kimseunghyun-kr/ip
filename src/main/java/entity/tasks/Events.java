@@ -9,6 +9,8 @@ public class Events extends Task {
     private LocalDateTime endby;
     public Events(String name, LocalDateTime startat, LocalDateTime endby) {
         super(name);
+        this.startat = startat;
+        this.endby = endby;
     }
 
     @Override

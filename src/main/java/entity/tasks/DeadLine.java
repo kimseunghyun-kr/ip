@@ -1,7 +1,6 @@
 package entity.tasks;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 public class DeadLine extends Task {
 

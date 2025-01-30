@@ -7,7 +7,6 @@ import entity.TaskType;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Defines the contract for task-related operations in the system.

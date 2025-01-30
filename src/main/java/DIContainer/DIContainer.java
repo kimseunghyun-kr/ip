@@ -490,9 +490,7 @@ public class DIContainer {
         // 1) All directly implemented interfaces from the class hierarchy
         Class<?> c = implClass;
         while (c != null && c != Object.class) {
-            for (Class<?> i : c.getInterfaces()) {
-                result.add(i);
-            }
+            result.addAll(Arrays.asList(c.getInterfaces()));
             c = c.getSuperclass();
         }
         // 2) All interfaces in 'registrations' that point to implClass

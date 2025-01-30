@@ -172,7 +172,7 @@ public class FileBackedTaskRepository extends TaskRepository implements IFileBac
      */
     private void backupCurrentFileIfExists() throws IOException {
         if (Files.exists(filePath)) {
-            Path backupPath = Paths.get(filePath.toString() + ".bak");
+            Path backupPath = Paths.get(filePath + ".bak");
             Files.copy(filePath, backupPath, StandardCopyOption.REPLACE_EXISTING);
         }
     }

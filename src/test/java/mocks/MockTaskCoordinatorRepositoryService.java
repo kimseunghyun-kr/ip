@@ -11,7 +11,7 @@ public class MockTaskCoordinatorRepositoryService extends TaskRepositoryCoordina
     MockTaskRepository mockTaskRepository;
     public MockTaskCoordinatorRepositoryService(MockTaskRepository mockTaskRepository) {
         super(mockTaskRepository, mockTaskRepository);
-        this.mockTaskRepository = mockTaskRepository;;
+        this.mockTaskRepository = mockTaskRepository;
     }
     public Task findByOrder(int orderIndex){
         return this.mockTaskRepository.findByOrder(orderIndex- 1).get();

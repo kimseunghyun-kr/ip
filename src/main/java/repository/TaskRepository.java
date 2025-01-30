@@ -56,7 +56,7 @@ public class TaskRepository implements ITaskRepository {
         }
 
         Task task = storageList.get(index);
-        storageList.remove(index); // Maintain list order
+        storageList.remove((int)index); // Maintain list order
         storageMap.remove(task.getId()); // Remove from fast lookup
         return task;
     }
@@ -76,8 +76,7 @@ public class TaskRepository implements ITaskRepository {
                         boolean beforeTo = (to == null || events.getEndby().isBefore(to));
                         return afterFrom && beforeTo;
                     } else if (task instanceof DeadLine deadLine) {
-                        boolean beforeTo = (to == null || deadLine.getDueby().isBefore(to));
-                        return beforeTo;
+                        return (to == null || deadLine.getDueby().isBefore(to));
                     }
                     return false;
                 })

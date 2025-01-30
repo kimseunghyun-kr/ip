@@ -57,8 +57,7 @@ public class ChatBotUtil {
                 "db   8D; 88;      88 `88.;   .88.;   88  V888; 88. ~8~; \n" +
                 "`8888Y'; 88;      88   YD; Y888888P; VP   V8P;  Y888P;  \n";
 
-        String[] words = logo.split(";");
-        return words;
+        return logo.split(";");
     }
 
 }

@@ -7,7 +7,6 @@ import util.DateTimeUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 
 public class SearchCommand implements Command {
     private ITaskService taskService;
