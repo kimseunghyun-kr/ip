@@ -5,7 +5,7 @@ NUM_COMMITS=${1:-5}
 
 # Start interactive rebase and mark all commits as "edit"
 echo "Starting interactive rebase for the last $NUM_COMMITS commits..."
-GIT_SEQUENCE_EDITOR="sed -i '' s/^pick/edit/'" git rebase -i HEAD~$NUM_COMMITS || exit 1
+GIT_SEQUENCE_EDITOR="sed -i '' 's/^pick/edit/'" git rebase -i HEAD~$NUM_COMMITS || exit 1
 
 # Loop through each commit in chronological order
 for commit in $(git rev-list --reverse HEAD~$NUM_COMMITS..HEAD); do
