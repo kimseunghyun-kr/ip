@@ -7,6 +7,7 @@ public enum Actions {
     MARK,
     UNMARK,
     DELETE,
+    SEARCH,
     INVALID;
 
     public static Actions fromString(String command) {

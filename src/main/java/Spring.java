@@ -9,12 +9,14 @@ import entity.Command.CommandFactory;
 import repository.FileBackedTaskRepository;
 import repository.IFileBackedTaskRepository;
 import repository.ITaskRepository;
+import repository.TaskRepository;
 import repository.entityManager.BabyEntityManager;
 import repository.entityManager.TaskFlusher;
 import runtime.ActionHandler;
 import runtime.BotRunTime;
 import runtime.IBotRunTime;
 import service.ITaskService;
+import service.TaskRepositoryCoordinatorService;
 import util.DirectoryInitializeUtils;
 
 import java.nio.file.Path;
@@ -35,6 +37,7 @@ public class Spring {
         container.register(IFileBackedTaskRepository.class);
         container.register(ITaskRepository.class);
         container.register(ITaskService.class);
+        container.register(TaskRepositoryCoordinatorService.class);
         container.register(ActionHandler.class);
         container.register(CommandFactory.class);
         container.register(TaskFlusher.class);

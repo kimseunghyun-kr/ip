@@ -1,7 +1,5 @@
 package repository;
 
-import DIContainer.Proxiable;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -11,7 +9,7 @@ import java.util.Optional;
 public interface CrudRepository<T, ID> {
     T save(T entity);
 
-    Optional<T> findById(ID id);
+    Optional<T> findByOrder(ID id);
 
     List<T> findAll();
 

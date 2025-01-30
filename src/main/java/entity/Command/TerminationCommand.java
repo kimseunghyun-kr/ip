@@ -1,21 +1,22 @@
 package entity.Command;
 
-import service.TaskService;
+import exceptions.UserFacingException;
+import service.ITaskService;
 
 import java.util.List;
 
 public class TerminationCommand implements Command {
-    private TaskService taskService;
+    private ITaskService taskService;
 
     @Override
-    public void setTaskService(TaskService taskService) {
+    public void setTaskService(ITaskService taskService) {
         this.taskService = taskService;
     }
 
     @Override
     public void execute(List<String> parameters) {
         if (!parameters.isEmpty()) {
-            throw new IllegalArgumentException("is this a bye? or just a chat?");
+            throw new UserFacingException("is this a bye? or just a chat?");
         }
     }
 }

@@ -1,10 +1,10 @@
 package entity.Command;
 
-import service.TaskService;
+import service.ITaskService;
 
 import java.util.List;
 
 public interface Command {
-    void setTaskService(TaskService taskService);
+    void setTaskService(ITaskService taskService);
     void execute(List<String> parameters);
 }

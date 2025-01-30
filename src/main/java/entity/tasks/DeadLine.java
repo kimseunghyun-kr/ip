@@ -22,7 +22,9 @@ public class DeadLine extends Task {
             builder.append("[ ] ");
         }
         builder.append(super.getName());
-        builder.append("         " );
+        builder.append(" due by  :: {");
+        builder.append(dueby);
+        builder.append("}         ");
         builder.append("UUID:: ");
         builder.append(super.getId());
         return builder.toString();

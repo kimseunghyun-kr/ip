@@ -1,24 +1,26 @@
 package entity.Command;
 
+import exceptions.UserFacingException;
+import service.ITaskService;
 import service.TaskService;
 
 import java.util.List;
 
 public class MarkCommand implements Command {
-    private TaskService taskService;
+    private ITaskService taskService;
 
     @Override
-    public void setTaskService(TaskService taskService) {
+    public void setTaskService(ITaskService taskService) {
         this.taskService = taskService;
     }
 
     @Override
     public void execute(List<String> parameters) {
         if (parameters.size() != 1) {
-            throw new IllegalArgumentException("mark command requires exactly 1 parameter");
+            throw new UserFacingException("mark command requires exactly 1 parameter");
         }
 
-        int taskId = Integer.parseInt(parameters.getFirst());
+        int taskId = Integer.parseInt(parameters.get(0));
         String response = taskService.markDone(taskId);
         System.out.println(response);
     }

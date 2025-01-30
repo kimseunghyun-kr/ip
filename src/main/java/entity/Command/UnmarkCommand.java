@@ -1,25 +1,26 @@
 package entity.Command;
 
-import service.TaskService;
+import exceptions.UserFacingException;
+import service.ITaskService;
 
 import java.util.List;
 
 public class UnmarkCommand implements Command {
 
-    private TaskService taskService;
+    private ITaskService taskService;
 
     @Override
-    public void setTaskService(TaskService taskService) {
+    public void setTaskService(ITaskService taskService) {
         this.taskService = taskService;
     }
 
     @Override
     public void execute(List<String> parameters) {
         if (parameters.size() != 1) {
-            throw new IllegalArgumentException("unmark command requires exactly 1 parameter");
+            throw new UserFacingException("unmark command requires exactly 1 parameter");
         }
 
-        int taskId = Integer.parseInt(parameters.getFirst());
+        int taskId = Integer.parseInt(parameters.get(0));
         String response = taskService.markUndone(taskId);
         System.out.println(response);
     }

@@ -1,5 +1,7 @@
 package DIContainer.AOPInterfaces;
 
+import exceptions.UserFacingException;
+
 import java.lang.reflect.Method;
 
 public class ExceptionHandlerInterceptor implements Interceptor {
@@ -15,7 +17,15 @@ public class ExceptionHandlerInterceptor implements Interceptor {
 
     @Override
     public void onException(Object target, Method method, Object[] args, Throwable throwable) {
-        System.err.println("EXCEPTION: Caught exception in method " + method.getName() + ": " + throwable.getMessage());
+        if (throwable instanceof UserFacingException) {
+            System.err.println("User-facing exception: " + throwable.getMessage());
+            // Optionally log or handle it differently for user feedback
+        } else {
+            // System-level exceptions are critical and may need a stack trace or alerting
+            System.err.println("Unhandled system exception in method: " + method.getName());
+            throwable.printStackTrace();
+            throw new RuntimeException("An unexpected error occurred. Please try again later.", throwable);
+        }
     }
 }
 

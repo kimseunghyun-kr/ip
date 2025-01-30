@@ -6,6 +6,7 @@ import entity.Command.Command;
 import entity.Command.CommandFactory;
 import exceptions.UserFacingException;
 
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -40,6 +41,10 @@ public class ActionHandler implements Proxiable {
             generatedCommand.execute(parameters);
         } catch (IllegalArgumentException e) {
             System.out.println("Error: " + e.getMessage() + " -- parameter involved is probably wrong");
+        } catch (UserFacingException e) {
+            System.out.println("Error: " + e.getMessage() + " went wrong");
+        } catch (DateTimeParseException e) {
+            System.out.println("Error: " + e.getMessage() + " datetime parsing went wrong");
         }
         return generatedCommand;
 

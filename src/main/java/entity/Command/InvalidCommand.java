@@ -1,13 +1,13 @@
 package entity.Command;
 
-import service.TaskService;
+import service.ITaskService;
 
 import java.util.List;
 
 public class InvalidCommand implements Command {
-    private TaskService taskService;
+    private ITaskService taskService;
     @Override
-    public void setTaskService(TaskService taskService) {
+    public void setTaskService(ITaskService taskService) {
         this.taskService = taskService;
     }
 

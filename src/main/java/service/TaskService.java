@@ -4,43 +4,40 @@ import entity.TaskType;
 import entity.tasks.Task;
 import entity.tasks.TaskFactory;
 import exceptions.UserFacingException;
-import repository.IFileBackedTaskRepository;
 import repository.ITaskRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 public class TaskService implements ITaskService {
+    private final TaskRepositoryCoordinatorService taskRepositoryCoordinatorService;
     private final ITaskRepository taskRepository;
-    private final IFileBackedTaskRepository taskBuffer;
 
-    public TaskService(ITaskRepository taskRepository, IFileBackedTaskRepository taskBuffer) {
+    public TaskService(TaskRepositoryCoordinatorService taskRepositoryCoordinatorService, ITaskRepository taskRepository) {
+        this.taskRepositoryCoordinatorService = taskRepositoryCoordinatorService;
         this.taskRepository = taskRepository;
-        this.taskBuffer = taskBuffer;
     }
 
     public String markDone(int index) {
-        Task selectedTask = taskRepository.findById(index - 1).orElseThrow(()->new UserFacingException("Task not found"));
-        if(selectedTask == null) {
-            throw new UserFacingException("Task not found");
-        }
+        Task selectedTask = taskRepositoryCoordinatorService.findByOrder(index);
         if (selectedTask.getCompleted()) {
             return "the task is already marked as done \n" + selectedTask + "  ->  " + selectedTask;
         } else {
             String response = "the task has been marked as done \n" + selectedTask;
             selectedTask.toggleCompleted();
-            taskBuffer.markDirty(selectedTask.getId());
+            taskRepositoryCoordinatorService.markDirty(selectedTask.getId());
             response = response + "  ->  " + selectedTask;
             return response;
         }
     }
 
     public String markUndone(int index) {
-
-        Task selectedTask = taskRepository.findById(index - 1).orElseThrow(()->new UserFacingException("Task not found"));
+        Task selectedTask = taskRepositoryCoordinatorService.findByOrder(index - 1);
         if (selectedTask.getCompleted()) {
             String response = "the task has been marked as undone \n" + selectedTask;
             selectedTask.toggleCompleted();
-            taskBuffer.markDirty(selectedTask.getId());
+            taskRepositoryCoordinatorService.markDirty(selectedTask.getId());
             response = response + "  ->  " + selectedTask;
             return response;
         } else {
@@ -81,5 +78,25 @@ public class TaskService implements ITaskService {
                 .append(" tasks in the list");
 
         return result.toString();
+    }
+
+    public String SearchOrder(String uuidstr) {
+        try{
+            UUID uuid = UUID.fromString(uuidstr);
+            return Integer.valueOf(taskRepository.findOrder(uuid)).toString();
+        } catch (IllegalArgumentException e) {
+            throw new UserFacingException("the uid input is not a valid UUID");
+        }
+    }
+
+    @Override
+    public String SearchByDate(TaskType type, LocalDateTime from, LocalDateTime to) {
+        List<Task> withinDates = taskRepository.findAllFromWhenToWhen(type, from, to);
+        StringBuilder sb = new StringBuilder();
+        sb.append("The following tasks have been searched\n");
+        for(Task withinDate : withinDates) {
+            sb.append(withinDate).append("\n");
+        }
+        return sb.toString();
     }
 }

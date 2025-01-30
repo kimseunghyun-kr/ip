@@ -21,7 +21,12 @@ public class Events extends Task {
             builder.append("[ ] ");
         }
         builder.append(super.getName());
-        builder.append("         " );
+        builder.append(" starting from  :: {");
+        builder.append(startat);
+        builder.append("} ");
+        builder.append(" ending by :: {");
+        builder.append(endby);
+        builder.append("}         ");
         builder.append("UUID:: ");
         builder.append(super.getId());
         return builder.toString();
