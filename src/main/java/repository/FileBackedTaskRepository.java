@@ -1,11 +1,14 @@
 package repository;
 
 import entity.tasks.Task;
+import repository.event.TaskEvent;
+import repository.event.TaskEventLogger;
+import repository.event.TaskEventObject;
+import util.DataFileUtils;
 
 import java.io.*;
 import java.nio.file.*;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static util.TaskDeserializer.deserializeTask;
 import static util.TaskSerializer.serializeTask;
@@ -26,6 +29,7 @@ import static util.TaskSerializer.serializeTask;
 public class FileBackedTaskRepository extends TaskRepository implements IFileBackedTaskRepository {
 
     private final Path filePath;
+    private final TaskEventLogger eventLogger;
     private final Set<UUID> dirtySet = new HashSet<>(); // Tracks modified tasks
 
     /**
@@ -33,9 +37,13 @@ public class FileBackedTaskRepository extends TaskRepository implements IFileBac
      *
      * @param filePath The file path where tasks will be persisted.
      */
-    public FileBackedTaskRepository(Path filePath) {
+    public FileBackedTaskRepository(Path filePath, TaskEventLogger eventLogger) {
         this.filePath = filePath;
-        loadFromFile();
+        this.eventLogger = eventLogger;
+        loadFromFile(false);
+
+        // Replay log to update the state
+        eventLogger.clearLog();
     }
 
     /**
@@ -47,7 +55,8 @@ public class FileBackedTaskRepository extends TaskRepository implements IFileBac
     @Override
     public Task save(Task entity) {
         Task result = super.save(entity);
-        dirtySet.add(result.getId()); // Mark as dirty
+        dirtySet.add(result.getId());
+        TaskEventObject.getInstance().dispatch(new TaskEvent(TaskEvent.EventType.ADD, result));
         return result;
     }
 
@@ -61,7 +70,8 @@ public class FileBackedTaskRepository extends TaskRepository implements IFileBac
     public Task deleteByOrder(Integer index) {
         Task task = super.deleteByOrder(index);
         if (task != null) {
-            dirtySet.add(task.getId()); // Mark as dirty (removal)
+            dirtySet.add(task.getId());
+            TaskEventObject.getInstance().dispatch(new TaskEvent(TaskEvent.EventType.DELETE, task.getId()));
         }
         return task;
     }
@@ -72,11 +82,27 @@ public class FileBackedTaskRepository extends TaskRepository implements IFileBac
      */
     @Override
     public void flush() {
-        if (dirtySet.isEmpty()) return; // No changes, skip flush
+        if (dirtySet.isEmpty()) return;
 
         System.out.println("Flushing modified tasks to file...");
-        persistAll();
-        dirtySet.clear(); // Reset tracking
+
+        // Step 1: Load a snapshot from the current file
+        List<Task> fileSnapshot = this.loadFromFile(true); // Load directly from file
+        // Step 2: Take a snapshot of the current buffer (pre-flush state)
+        int snapshotHashBeforeFlush = Objects.hash(super.storageList.toArray());
+        // Step 3: Perform a validity check using a fresh snapshot from the file
+        int expectedListHash = eventLogger.tryLogReplay(fileSnapshot);
+        // Step 3: Compare the expected state with the current in-memory state
+        if (expectedListHash == snapshotHashBeforeFlush) {
+            System.out.println("Log replay is valid. Applying logs.");
+            eventLogger.replayLog(filePath);  // Step 4: Apply logs if valid
+        } else {
+            System.err.println("Flush detected a drift! Falling back to full persistAll.");
+            persistAll();  // Step 5: Full write to fix inconsistencies
+            eventLogger.clearLog();
+        }
+
+        dirtySet.clear();
     }
 
     /**
@@ -87,7 +113,8 @@ public class FileBackedTaskRepository extends TaskRepository implements IFileBac
      */
     @Override
     public UUID markDirty(UUID id) {
-        dirtySet.add(id); // Mark the task as modified
+        dirtySet.add(id);
+        TaskEventObject.getInstance().dispatch(new TaskEvent(TaskEvent.EventType.UPDATE, storageMap.get(id)));
         return id;
     }
 
@@ -132,38 +159,42 @@ public class FileBackedTaskRepository extends TaskRepository implements IFileBac
     }
 
     /**
-     * Loads tasks from the file into memory.
-     * Ensures JSON validity and recovers from backup if needed.
+     * Loads tasks from the file. Can return a list or load directly into memory.
+     *
+     * @param returnListOnly If true, returns a list of tasks instead of modifying internal storage.
+     * @return List of tasks (only if returnListOnly is true), otherwise null.
      */
-    private void loadFromFile() {
+    private List<Task> loadFromFile(boolean returnListOnly) {
+        List<Task> taskList = new ArrayList<>();
+
         if (!Files.exists(filePath)) {
-            return; // No file, start fresh
+            return returnListOnly ? taskList : null;
         }
 
-        try (BufferedReader reader = Files.newBufferedReader(filePath)) {
-            List<String> lines = reader.lines()
-                    .map(String::trim)
-                    .filter(line -> !line.isEmpty())
-                    .collect(Collectors.toList());
-
-            if (lines.isEmpty() || !lines.get(0).equals("[") || !lines.get(lines.size() - 1).equals("]")) {
-                throw new IOException("Invalid file format");
-            }
-
-            for (int i = 1; i < lines.size() - 1; i++) {
-                String line = lines.get(i).replaceAll(",$", ""); // Remove trailing commas
-                Task task = deserializeTask(line);
-                if (task != null) {
-                    super.storageList.add(task); // Maintain order
-                    super.storageMap.put(task.getId(), task); // Fast lookup
-                }
-            }
-
+        try {
+            Map<UUID, Task> taskMap = DataFileUtils.readTasksFromFile(filePath);
+            taskList.addAll(taskMap.values());
         } catch (IOException e) {
-            System.err.println("Error reading from file: " + e.getMessage());
-            attemptBackupRecovery();
+            System.err.println("Error reading tasks from file: " + e.getMessage());
+            if (!returnListOnly) {
+                attemptBackupRecovery();
+            }
         }
+
+        if (!returnListOnly) {
+            // Load into memory (only during initialization)
+            super.storageList.clear();
+            super.storageMap.clear();
+            for (Task task : taskList) {
+                super.storageList.add(task);
+                super.storageMap.put(task.getId(), task);
+            }
+        }
+
+        return returnListOnly ? taskList : null;
     }
+
+
 
     /**
      * Creates a backup of the current file before overwriting.

@@ -53,7 +53,7 @@ public class TaskFlusher {
      * The repository is flushed every 10 seconds to persist changes.
      */
     public void start() {
-        scheduler.scheduleAtFixedRate(flushTask, 0, 10, TimeUnit.SECONDS);
+        scheduler.scheduleAtFixedRate(flushTask, 0, 60, TimeUnit.SECONDS);
     }
 
     /**

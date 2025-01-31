@@ -11,6 +11,7 @@ import repository.IFileBackedTaskRepository;
 import repository.ITaskRepository;
 import repository.entityManager.BabyEntityManager;
 import repository.entityManager.TaskFlusher;
+import repository.event.TaskEventLogger;
 import runtime.ActionHandler;
 import runtime.IBotRunTime;
 import service.ITaskService;
@@ -23,7 +24,8 @@ public class Spring {
     public static void main(String[] args) {
         // Initialize the DI container
         DIContainer container = new DIContainer();
-        Path filePath = DirectoryInitializeUtils.initializeDirectory();
+        Path filePath = DirectoryInitializeUtils.initializeDataDirectory();
+        Path logPath = DirectoryInitializeUtils.initializeLogDirectory();
 
         // Register interceptors
         container.registerInterceptor(Log.class, new LoggingInterceptor());
@@ -31,6 +33,7 @@ public class Spring {
         container.registerInterceptor(ExceptionHandler.class, new ExceptionHandlerInterceptor());
 
         // Register components
+        container.register(TaskEventLogger.class, logPath);
         container.register(FileBackedTaskRepository.class, filePath);
         container.register(IFileBackedTaskRepository.class);
         container.register(ITaskRepository.class);

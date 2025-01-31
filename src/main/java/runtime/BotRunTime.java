@@ -54,8 +54,9 @@ public class BotRunTime implements IBotRunTime {
                 linesep();
                 String input = scanner.nextLine();
                 linesep();
-                Command command = actionHandler.resolveAction(input);
-                if (command instanceof TerminationCommand) {
+                CommandDAO command = actionHandler.resolveAction(input);
+                command.execute();
+                if (command.command instanceof TerminationCommand) {
                     break;
                 }
             } catch(UserFacingException e) {

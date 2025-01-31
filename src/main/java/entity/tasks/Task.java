@@ -1,6 +1,7 @@
 package entity.tasks;
 
 
+import java.util.Objects;
 import java.util.UUID;
 
 public class Task {
@@ -60,4 +61,15 @@ public class Task {
         this.id = id;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Task task = (Task) o;
+        return Objects.equals(id, task.id) && Objects.equals(name, task.name) && Objects.equals(isCompleted, task.isCompleted);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, isCompleted);
+    }
 }

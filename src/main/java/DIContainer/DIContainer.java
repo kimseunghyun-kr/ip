@@ -131,19 +131,21 @@ public class DIContainer {
      */
     private void storeConstructorArgs(Class<?> type, Object... args) {
         Constructor<?> constructor = type.getConstructors()[0];
-        if (args.length != constructor.getParameterCount()) {
-            throw new IllegalArgumentException(
-                    "Constructor arg mismatch for " + type.getName() +
-                            ": expected " + constructor.getParameterCount() + " but got " + args.length
-            );
-        }
         Class<?>[] paramTypes = constructor.getParameterTypes();
+
+        // If the user provided more arguments than there are parameters, that's definitely an error:
+        if (args.length > paramTypes.length) {
+            throw new IllegalArgumentException("Too many constructor args for " + type.getName());
+        }
+
         Map<Class<?>, Object> map = new HashMap<>();
-        for (int i = 0; i < paramTypes.length; i++) {
+        for (int i = 0; i < args.length; i++) {
+            // We'll match each provided arg to paramTypes[i]
             map.put(paramTypes[i], args[i]);
         }
         constructorArgs.put(type, map);
     }
+
 
     /**
      * Checks if a class or interface is annotated with {@link ProxyEnabled} and records it.
