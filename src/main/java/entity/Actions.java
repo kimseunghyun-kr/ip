@@ -15,8 +15,8 @@ public enum Actions {
             if (command.equalsIgnoreCase("BYE")) {
                 return Actions.TERMINATE;
             }
-            if (command.equalsIgnoreCase("Todo") || command.equalsIgnoreCase("Event") ||
-                    command.equalsIgnoreCase("DeadLine")) {
+            if (command.equalsIgnoreCase("Todo") || command.equalsIgnoreCase("Event")
+                    || command.equalsIgnoreCase("DeadLine")) {
                 return Actions.ADD;
             }
             return Actions.valueOf(command.toUpperCase());

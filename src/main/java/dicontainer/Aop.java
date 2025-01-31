@@ -1,7 +1,4 @@
-package DIContainer;
-
-import DIContainer.AOPInterfaces.AnnotationInterfaces.ExceptionHandler;
-import DIContainer.AOPInterfaces.Interceptor;
+package dicontainer;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
@@ -9,20 +6,24 @@ import java.lang.reflect.Proxy;
 import java.util.Map;
 import java.util.Optional;
 
+import dicontainer.aopinterfaces.Interceptor;
+import dicontainer.aopinterfaces.annotationinterfaces.ExceptionHandler;
+
+
+
+
 /**
  * Provides dynamic proxy-based aspect-oriented programming (AOP) support.
  * This class allows for method-level interception based on custom annotations.
- *
  * The proxy can apply interceptors for "before", "after", and "onException" logic
  * when a method is annotated with a registered annotation.
- *
  * If a method annotated with {@link ExceptionHandler} throws an exception,
  * a fallback value may be returned based on the specified default return type.
  *
  * @author kimseunghyun-kr
  * @since v0.1-cli
  */
-public class AOP {
+public class Aop {
 
     /**
      * Creates a dynamic proxy for the given target object.
@@ -40,8 +41,7 @@ public class AOP {
                                     Class<?>... interfacesToProxy) {
         return (T) Proxy.newProxyInstance(
                 target.getClass().getClassLoader(),
-                interfacesToProxy,
-                (proxy, method, args) -> {
+                interfacesToProxy, (proxy, method, args) -> {
                     // 1) Possibly run "before" if method has an annotation we track
                     for (Map.Entry<Class<? extends Annotation>, Interceptor> entry : interceptors.entrySet()) {
                         Class<? extends Annotation> annoClass = entry.getKey();

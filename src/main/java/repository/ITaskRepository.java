@@ -1,8 +1,8 @@
 package repository;
 
-import DIContainer.AOPInterfaces.AnnotationInterfaces.ExceptionHandler;
-import DIContainer.AOPInterfaces.AnnotationInterfaces.ProxyEnabled;
-import DIContainer.Proxiable;
+import dicontainer.aopinterfaces.annotationinterfaces.ExceptionHandler;
+import dicontainer.aopinterfaces.annotationinterfaces.ProxyEnabled;
+import dicontainer.Proxiable;
 import entity.TaskType;
 import entity.tasks.Task;
 

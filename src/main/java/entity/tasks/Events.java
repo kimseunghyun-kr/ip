@@ -17,7 +17,7 @@ public class Events extends Task {
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append("[E] ");
-        if(super.getCompleted()){
+        if (super.getCompleted()) {
             builder.append("[X] ");
         } else {
             builder.append("[ ] ");

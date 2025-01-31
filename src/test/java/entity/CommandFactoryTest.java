@@ -1,7 +1,6 @@
 package entity;
 
-import entity.Command.*;
-import exceptions.UserFacingException;
+import entity.command.*;
 import mocks.MockTaskService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

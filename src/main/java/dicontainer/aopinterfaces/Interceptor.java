@@ -1,7 +1,13 @@
-package DIContainer.AOPInterfaces;
+package dicontainer.aopinterfaces;
 
 import java.lang.reflect.Method;
 
+/**
+ * Relays groundwork for future Interceptor based implementations
+ *
+ * @author kimseunghyun-kr
+ * @since v0.1-cli
+ */
 public interface Interceptor {
     /**
      * Invoked before the target method is executed.

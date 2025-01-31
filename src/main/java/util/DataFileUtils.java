@@ -4,7 +4,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import entity.tasks.Task;
@@ -15,7 +19,9 @@ public class DataFileUtils {
      * Reads a file and returns a list of trimmed, non-empty lines.
      */
     public static List<String> readNonEmptyLines(Path filePath) throws IOException {
-        if (!Files.exists(filePath)) return Collections.emptyList();
+        if (!Files.exists(filePath)) {
+            return Collections.emptyList();
+        }
 
         try (BufferedReader reader = Files.newBufferedReader(filePath)) {
             return reader.lines()

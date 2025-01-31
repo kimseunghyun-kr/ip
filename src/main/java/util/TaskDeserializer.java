@@ -1,13 +1,12 @@
 package util;
 
+import java.time.LocalDateTime;
+import java.util.UUID;
+
 import entity.tasks.DeadLine;
 import entity.tasks.Events;
 import entity.tasks.Task;
 import entity.tasks.ToDo;
-
-import java.time.LocalDateTime;
-import java.util.UUID;
-
 /**
  * Utility class for deserializing task objects from string representations.
  *
@@ -40,7 +39,9 @@ public class TaskDeserializer {
      */
     public static Task deserializeTask(String line) {
         String[] parts = line.split("\\|");
-        if (parts.length < 4) return null; // Invalid format
+        if (parts.length < 4) {
+            return null;
+        } // Invalid format
 
         try {
             UUID id = UUID.fromString(parts[0]); // Extract UUID
@@ -51,25 +52,29 @@ public class TaskDeserializer {
             Task task;
 
             switch (type) {
-                case "T":
-                    task = new ToDo(name);
-                    break;
+            case "T":
+                task = new ToDo(name);
+                break;
 
-                case "D":
-                    if (parts.length < 5) return null;
-                    LocalDateTime dueBy = LocalDateTime.parse(parts[4]);
-                    task = new DeadLine(name, dueBy);
-                    break;
+            case "D":
+                if (parts.length < 5) {
+                    return null;
+                }
+                LocalDateTime dueBy = LocalDateTime.parse(parts[4]);
+                task = new DeadLine(name, dueBy);
+                break;
 
-                case "E":
-                    if (parts.length < 6) return null;
-                    LocalDateTime startAt = LocalDateTime.parse(parts[4]);
-                    LocalDateTime endBy = LocalDateTime.parse(parts[5]);
-                    task = new Events(name, startAt, endBy);
-                    break;
+            case "E":
+                if (parts.length < 6) {
+                    return null;
+                }
+                LocalDateTime startAt = LocalDateTime.parse(parts[4]);
+                LocalDateTime endBy = LocalDateTime.parse(parts[5]);
+                task = new Events(name, startAt, endBy);
+                break;
 
-                default:
-                    return null; // Unknown task type
+            default:
+                return null; // Unknown task type
             }
 
             task.setCompleted(isCompleted);

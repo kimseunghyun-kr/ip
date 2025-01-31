@@ -65,7 +65,7 @@ public class TaskServiceTest {
         mockTaskRepository.save(task2);
 
         // WHEN
-        String results = taskService.SearchByKeyword("Important");
+        String results = taskService.searchByKeyword("Important");
 
         // THEN
         assertTrue(results.contains(task1.toString()));

@@ -1,10 +1,16 @@
-package entity.Command;
+package entity.command;
+
+import java.util.List;
 
 import exceptions.UserFacingException;
 import service.ITaskService;
 
-import java.util.List;
 
+/**
+ * Represents the "Delete / removal" command in the task management system.
+ * This command interacts with {@link ITaskService} to add a new task
+ * based on the provided parameters.
+ */
 public class DeleteCommand implements Command {
     private ITaskService taskService;
     @Override

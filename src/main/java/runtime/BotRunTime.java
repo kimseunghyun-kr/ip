@@ -1,13 +1,17 @@
 package runtime;
 
-import entity.Command.Command;
-import entity.Command.TerminationCommand;
-import exceptions.UserFacingException;
-import repository.entityManager.TaskFlusher;
+import static util.ChatBotUtil.exitSequence;
+import static util.ChatBotUtil.introSequence;
+import static util.ChatBotUtil.linesep;
 
 import java.util.Scanner;
 
-import static util.ChatBotUtil.*;
+import entity.command.TerminationCommand;
+import exceptions.UserFacingException;
+import repository.entityManager.TaskFlusher;
+
+
+
 
 /**
  * Implements {@link IBotRunTime} to manage the chatbot runtime execution.
@@ -45,21 +49,21 @@ public class BotRunTime implements IBotRunTime {
      * If a {@link UserFacingException} occurs, it is caught and logged at the outermost loop.
      * </p>
      */
-    public void run(){
+    public void run() {
         taskFlusher.start();
         linesep();
         introSequence();
-        while(true) {
+        while (true) {
             try {
                 linesep();
                 String input = scanner.nextLine();
                 linesep();
-                CommandDAO command = actionHandler.resolveAction(input);
+                CommandDao command = actionHandler.resolveAction(input);
                 command.execute();
                 if (command.command instanceof TerminationCommand) {
                     break;
                 }
-            } catch(UserFacingException e) {
+            } catch (UserFacingException e) {
                 System.out.println("outermost loop catch :: " + e.getMessage());
             }
         }

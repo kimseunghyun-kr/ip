@@ -1,8 +1,10 @@
-package entity.Command;
+package entity.command;
+
+import java.util.List;
 
 import service.ITaskService;
 
-import java.util.List;
+
 
 /**
  * Represents a command that can be executed in the task management system.

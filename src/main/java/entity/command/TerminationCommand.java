@@ -1,16 +1,20 @@
-package entity.Command;
+package entity.command;
+
+import java.util.List;
 
 import exceptions.UserFacingException;
 import service.ITaskService;
 
-import java.util.List;
 
+
+/**
+ * Represents the "Termination / No-op" command in the task management system.
+ * Behaves more closely as a sentinel value to determine when to stop runtime
+ */
 public class TerminationCommand implements Command {
-    private ITaskService taskService;
 
     @Override
     public void setTaskService(ITaskService taskService) {
-        this.taskService = taskService;
     }
 
     @Override

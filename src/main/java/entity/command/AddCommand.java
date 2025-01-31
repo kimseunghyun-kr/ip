@@ -1,9 +1,11 @@
-package entity.Command;
+package entity.command;
+
+import java.util.List;
 
 import exceptions.UserFacingException;
 import service.ITaskService;
 
-import java.util.List;
+
 
 /**
  * Represents the "Add / insertion" command in the task management system.

@@ -1,11 +1,13 @@
-import DIContainer.AOPInterfaces.AnnotationInterfaces.ExceptionHandler;
-import DIContainer.AOPInterfaces.AnnotationInterfaces.Log;
-import DIContainer.AOPInterfaces.AnnotationInterfaces.Transactional;
-import DIContainer.AOPInterfaces.ExceptionHandlerInterceptor;
-import DIContainer.AOPInterfaces.LoggingInterceptor;
-import DIContainer.AOPInterfaces.TransactionalInterceptor;
-import DIContainer.DIContainer;
-import entity.Command.CommandFactory;
+import java.nio.file.Path;
+
+import dicontainer.DependencyInjectionContainer;
+import dicontainer.aopinterfaces.ExceptionHandlerInterceptor;
+import dicontainer.aopinterfaces.LoggingInterceptor;
+import dicontainer.aopinterfaces.TransactionalInterceptor;
+import dicontainer.aopinterfaces.annotationinterfaces.ExceptionHandler;
+import dicontainer.aopinterfaces.annotationinterfaces.Log;
+import dicontainer.aopinterfaces.annotationinterfaces.Transactional;
+import entity.command.CommandFactory;
 import repository.FileBackedTaskRepository;
 import repository.IFileBackedTaskRepository;
 import repository.ITaskRepository;
@@ -18,12 +20,12 @@ import service.ITaskService;
 import service.TaskRepositoryCoordinatorService;
 import util.DirectoryInitializeUtils;
 
-import java.nio.file.Path;
+
 
 public class Spring {
     public static void main(String[] args) {
         // Initialize the DI container
-        DIContainer container = new DIContainer();
+        DependencyInjectionContainer container = new DependencyInjectionContainer();
         Path filePath = DirectoryInitializeUtils.initializeDataDirectory();
         Path logPath = DirectoryInitializeUtils.initializeLogDirectory();
 

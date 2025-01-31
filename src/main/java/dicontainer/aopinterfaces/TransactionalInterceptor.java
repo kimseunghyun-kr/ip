@@ -1,7 +1,13 @@
-package DIContainer.AOPInterfaces;
+package dicontainer.aopinterfaces;
 
 import java.lang.reflect.Method;
 
+/**
+ * Intercepts TransactionalContext Annotated classes to inject new behaviour by proxy
+ *
+ * @author kimseunghyun-kr
+ * @since v0.1-cli
+ */
 public class TransactionalInterceptor implements Interceptor {
     @Override
     public void before(Object target, Method method, Object[] args) {

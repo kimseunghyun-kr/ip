@@ -1,4 +1,4 @@
-package DIContainer.AOPInterfaces.AnnotationInterfaces;
+package dicontainer.aopinterfaces.annotationinterfaces;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

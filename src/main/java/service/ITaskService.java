@@ -1,12 +1,15 @@
 package service;
 
-import DIContainer.AOPInterfaces.AnnotationInterfaces.ExceptionHandler;
-import DIContainer.AOPInterfaces.AnnotationInterfaces.ProxyEnabled;
-import DIContainer.Proxiable;
-import entity.TaskType;
-
 import java.time.LocalDateTime;
 import java.util.List;
+
+import dicontainer.Proxiable;
+import dicontainer.aopinterfaces.annotationinterfaces.ExceptionHandler;
+import dicontainer.aopinterfaces.annotationinterfaces.ProxyEnabled;
+import entity.TaskType;
+
+
+
 
 /**
  * Defines the contract for task-related operations in the system.
@@ -69,7 +72,7 @@ public interface ITaskService extends Proxiable {
      * @return A formatted string containing matching tasks.
      */
     @ExceptionHandler
-    String SearchByDate(TaskType type, LocalDateTime from, LocalDateTime to);
+    String searchByDate(TaskType type, LocalDateTime from, LocalDateTime to);
 
     /**
      * Searches for a task by its unique identifier.
@@ -78,7 +81,7 @@ public interface ITaskService extends Proxiable {
      * @return A formatted string containing the matching task.
      */
     @ExceptionHandler
-    String SearchOrder(String uuid);
+    String searchOrder(String uuid);
 
     /**
      * Searches for tasks by a keyword.
@@ -87,5 +90,5 @@ public interface ITaskService extends Proxiable {
      * @return A formatted string containing matching tasks.
      */
     @ExceptionHandler
-    String SearchByKeyword(String keyword);
+    String searchByKeyword(String keyword);
 }

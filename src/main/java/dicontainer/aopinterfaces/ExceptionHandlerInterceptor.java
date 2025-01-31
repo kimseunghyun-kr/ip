@@ -1,14 +1,15 @@
-package DIContainer.AOPInterfaces;
-
-import exceptions.UserFacingException;
+package dicontainer.aopinterfaces;
 
 import java.lang.reflect.Method;
 
+import exceptions.UserFacingException;
+
+
+
 /**
- * Interceptor that handles exceptions thrown during method execution.
+ * Handles exceptions thrown during method execution.
  * It distinguishes between user-facing exceptions and system-level exceptions,
  * ensuring appropriate logging and error propagation.
- *
  * If the exception is an instance of {@link UserFacingException}, a user-friendly message is logged.
  * Otherwise, system-level exceptions are logged with a stack trace and rethrown as a {@link RuntimeException}.
  *

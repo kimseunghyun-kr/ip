@@ -1,14 +1,27 @@
-package DIContainer;
-
-import DIContainer.AOPInterfaces.AnnotationInterfaces.ProxyEnabled;
-import DIContainer.AOPInterfaces.Interceptor;
+package dicontainer;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import dicontainer.aopinterfaces.Interceptor;
+import dicontainer.aopinterfaces.annotationinterfaces.ProxyEnabled;
+
+
+
 
 /**
  * A lightweight dependency injection (DI) container with support for aspect-oriented programming (AOP).
@@ -27,7 +40,7 @@ import java.util.*;
  * @author kimseunghyun-kr
  * @since v0.1-cli
  */
-public class DIContainer {
+public class DependencyInjectionContainer {
     /** Indicates whether the container has been initialized. */
     private boolean initialized = false;
 
@@ -106,9 +119,8 @@ public class DIContainer {
                     }
                     if (primary == null) {
                         throw new RuntimeException(
-                                "Multiple implementations found for " + type.getName() +
-                                        " and none is @ProxyEnabled to pick as primary"
-                        );
+                                "Multiple implementations found for " + type.getName()
+                                        + " and none is @ProxyEnabled to pick as primary");
                     }
                     registrations.put(type, primary);
                     buildDependencyGraph(primary);
@@ -230,9 +242,13 @@ public class DIContainer {
 
     private Set<Class<?>> findClasses(File dir, String pkgName, Class<?> iface) {
         Set<Class<?>> found = new HashSet<>();
-        if (!dir.exists()) return found;
+        if (!dir.exists()) {
+            return found;
+        }
         File[] files = dir.listFiles();
-        if (files == null) return found;
+        if (files == null) {
+            return found;
+        }
 
         for (File f : files) {
             if (f.isDirectory()) {
@@ -268,7 +284,7 @@ public class DIContainer {
         Set<Class<?>> allTypes = dependencyGraph.keySet();
 
         // 2) We do Kahn's Algorithm or a DFS-based approach to get a topological order
-        List<Class<?>> topoOrder = topologicalSortDFS(allTypes, dependencyGraph);
+        List<Class<?>> topoOrder = topologicalSortDfs(allTypes, dependencyGraph);
 
         // 3) Build instances in that order
         for (Class<?> type : topoOrder) {
@@ -301,13 +317,13 @@ public class DIContainer {
     /**
      * Perform a Kahn's Algorithm topological sort to detect cycles and produce an order.
      */
-    private List<Class<?>> topologicalSortDFS(Set<Class<?>> nodes,
+    private List<Class<?>> topologicalSortDfs(Set<Class<?>> nodes,
                                               Map<Class<?>, Set<Class<?>>> graph) {
         // 'graph[A]' = set of classes that A depends on
 
         List<Class<?>> sortedList = new ArrayList<>();
-        Set<Class<?>> visited = new HashSet<>();   // permanent mark
-        Set<Class<?>> visiting = new HashSet<>();  // temporary mark (detect cycles)
+        Set<Class<?>> visited = new HashSet<>(); // permanent mark
+        Set<Class<?>> visiting = new HashSet<>(); // temporary mark (detect cycles)
 
         for (Class<?> node : nodes) {
             if (!visited.contains(node)) {
@@ -376,7 +392,7 @@ public class DIContainer {
         if (requiresProxy(implClass)) {
             // gather all relevant interfaces
             Class<?>[] allIfaces = computeAllInterfacesFor(implClass);
-            Object proxy = AOP.createProxy(realObj, interceptors, allIfaces);
+            Object proxy = Aop.createProxy(realObj, interceptors, allIfaces);
 
             // store the proxy
             instances.put(implClass, proxy);

@@ -1,10 +1,10 @@
 package util;
 
-import entity.Actions;
-import exceptions.UserFacingException;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import entity.Actions;
+import exceptions.UserFacingException;
 
 /**
  * Utility class for mapping user input commands to {@link Actions}.
@@ -27,9 +27,6 @@ public class CommandMapper {
 
         COMMAND_MAPPINGS.put("delete", Actions.DELETE);
         COMMAND_MAPPINGS.put("remove", Actions.DELETE);
-
-//        COMMAND_MAPPINGS.put("update", Actions.UPDATE);
-//        COMMAND_MAPPINGS.put("modify", Actions.UPDATE);
 
         COMMAND_MAPPINGS.put("todo", Actions.ADD);
         COMMAND_MAPPINGS.put("deadline", Actions.ADD);
@@ -67,15 +64,16 @@ public class CommandMapper {
         // Suggest closest valid command
         for (String validCommand : COMMAND_MAPPINGS.keySet()) {
             if (isSimilar(command, validCommand)) {
-                throw new UserFacingException("Unknown command: '" + command + "'. Did you mean '" + validCommand + "'?");
+                throw new UserFacingException("Unknown command: '"
+                        + command + "'. Did you mean '" + validCommand + "'?");
             }
         }
 
-        try{
-            Actions a = Actions.valueOf(command.toUpperCase());
-            return a;
+        try {
+            return Actions.valueOf(command.toUpperCase());
         } catch (IllegalArgumentException e) {
-            throw new UserFacingException("Unknown command: '" + command + "'. Type 'help' for a list of valid commands.");
+            throw new UserFacingException("Unknown command: '"
+                    + command + "'. Type 'help' for a list of valid commands.");
         }
     }
 
@@ -109,8 +107,8 @@ public class CommandMapper {
                 } else {
                     int cost = (s1.charAt(i - 1) == s2.charAt(j - 1)) ? 0 : 1;
                     dp[i][j] = Math.min(Math.min(
-                                    dp[i - 1][j] + 1,     // Deletion
-                                    dp[i][j - 1] + 1),    // Insertion
+                                    dp[i - 1][j] + 1, // Deletion
+                                    dp[i][j - 1] + 1), // Insertion
                             dp[i - 1][j - 1] + cost // Substitution
                     );
                 }

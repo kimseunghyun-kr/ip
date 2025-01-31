@@ -1,10 +1,15 @@
-package entity.Command;
+package entity.command;
+
+import java.util.List;
 
 import exceptions.UserFacingException;
 import service.ITaskService;
 
-import java.util.List;
-
+/**
+ * Represents the "mark " command in the task management system.
+ * This command interacts with {@link ITaskService} to mark a task done
+ * based on the provided parameters.
+ */
 public class MarkCommand implements Command {
     private ITaskService taskService;
 

@@ -1,9 +1,13 @@
-package DIContainer.AOPInterfaces;
-
-import DIContainer.AOPInterfaces.Interceptor;
+package dicontainer.aopinterfaces;
 
 import java.lang.reflect.Method;
 
+/**
+ * Intercepts Log annotated classes to inject new behaviour by proxy
+ *
+ * @author kimseunghyun-kr
+ * @since v0.1-cli
+ */
 public class LoggingInterceptor implements Interceptor {
     @Override
     public void before(Object target, Method method, Object[] args) {

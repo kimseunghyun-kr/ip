@@ -1,11 +1,12 @@
 package mocks;
 
-import entity.TaskType;
-import service.ITaskService;
-import service.TaskService;
-
 import java.time.LocalDateTime;
 import java.util.List;
+
+import entity.TaskType;
+import service.ITaskService;
+
+
 
 public class MockTaskService implements ITaskService {
     @Override
@@ -34,17 +35,17 @@ public class MockTaskService implements ITaskService {
     }
 
     @Override
-    public String SearchByDate(TaskType type, LocalDateTime from, LocalDateTime to) {
+    public String searchByDate(TaskType type, LocalDateTime from, LocalDateTime to) {
         return "";
     }
 
     @Override
-    public String SearchOrder(String uuid) {
+    public String searchOrder(String uuid) {
         return "";
     }
 
     @Override
-    public String SearchByKeyword(String keyword) {
+    public String searchByKeyword(String keyword) {
         return "";
     }
 }
