@@ -41,9 +41,12 @@ public class DiConfig {
         container.register(ITaskService.class);
         container.register(ITaskRepository.class);
         container.register(ITaskController.class, TaskController.class);
-        if(cli) {
+        if (cli) {
             container.register(IDispatcher.class, CliDispatcher.class);
             container.register(IBotRunTime.class); // Register BotRunTime
+        } else {
+            container.register(IDispatcher.class, GuiDispatcher.class);
+            container.register(IBotRunTime.class);
         }
         container.register(TaskRepositoryCoordinatorService.class);
         container.register(JavaFxLauncher.class);
