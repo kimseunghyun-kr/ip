@@ -1,8 +1,5 @@
 package entity.command;
 
-<<<<<<< Updated upstream
-public class ClearCommand {
-=======
 import java.util.List;
 
 import controller.ControllerResponse;
@@ -25,5 +22,4 @@ public class ClearCommand implements Command {
     public ControllerResponse execute(List<String> parameters) {
         return taskController.deleteAll();
     }
->>>>>>> Stashed changes
 }
