@@ -61,14 +61,13 @@ public class CommandMapper {
             throw new UserFacingException("The 'add' action is deprecated. Use 'create' instead.");
         }
 
-        // Suggest closest valid command
+        // Suggest the closest valid command
         for (String validCommand : COMMAND_MAPPINGS.keySet()) {
             if (isSimilar(command, validCommand)) {
                 throw new UserFacingException("Unknown command: '"
                         + command + "'. Did you mean '" + validCommand + "'?");
             }
         }
-
         try {
             return Actions.valueOf(command.toUpperCase());
         } catch (IllegalArgumentException e) {

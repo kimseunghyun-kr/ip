@@ -8,7 +8,8 @@ public enum Actions {
     UNMARK,
     DELETE,
     SEARCH,
-    INVALID;
+    INVALID,
+    CLEAR;
 
     public static Actions fromString(String command) {
         try {

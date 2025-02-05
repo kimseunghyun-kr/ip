@@ -5,7 +5,7 @@ import entity.tasks.Task;
 import java.util.UUID;
 
 public class TaskEvent {
-    public enum EventType { ADD, UPDATE, DELETE }
+    public enum EventType { ADD, UPDATE, DELETE, DELETEALL }
 
     private final EventType type;
     private final Task task;

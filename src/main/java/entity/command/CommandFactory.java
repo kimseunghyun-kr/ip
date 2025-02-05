@@ -37,6 +37,7 @@ public class CommandFactory implements Proxiable {
         commandMap.put(Actions.DELETE, DeleteCommand.class);
         commandMap.put(Actions.SEARCH, SearchCommand.class);
         commandMap.put(Actions.INVALID, InvalidCommand.class);
+        commandMap.put(Actions.CLEAR, ClearCommand.class);
     }
     /**
      * Creates a command instance corresponding to the specified action.

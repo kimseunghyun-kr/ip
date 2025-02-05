@@ -75,4 +75,6 @@ public interface ITaskController {
      * @return A formatted string listing tasks within the given date range.
      */
     ControllerResponse searchByDate(TaskType type, LocalDateTime from, LocalDateTime to);
+
+    ControllerResponse deleteAll();
 }

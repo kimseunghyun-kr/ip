@@ -11,7 +11,7 @@ public class TaskEventObject {
     private static final TaskEventObject INSTANCE = new TaskEventObject();
     private final List<Consumer<TaskEvent>> listeners = new CopyOnWriteArrayList<>();
 
-    private TaskEventObject() {}  // Private constructor for Singleton
+    private TaskEventObject() {} // Private constructor for Singleton
 
     public static TaskEventObject getInstance() {
         return INSTANCE;
