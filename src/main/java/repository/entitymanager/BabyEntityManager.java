@@ -1,4 +1,4 @@
-package repository.entityManager;
+package repository.entitymanager;
 import entity.tasks.Task;
 import repository.ITaskRepository;
 

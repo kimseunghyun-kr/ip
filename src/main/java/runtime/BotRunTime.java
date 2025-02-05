@@ -3,7 +3,7 @@ package runtime;
 import dispatcher.IDispatcher;
 import entity.command.TerminationCommand;
 import exceptions.UserFacingException;
-import repository.entityManager.TaskFlusher;
+import repository.entitymanager.TaskFlusher;
 
 
 

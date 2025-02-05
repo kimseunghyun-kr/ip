@@ -1,11 +1,13 @@
-package repository.entityManager;
+package repository.entitymanager;
 
-import repository.IFileBackedTaskRepository;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
+import repository.IFileBackedTaskRepository;
+
 
 /**
  * Periodically calls {@code flush()} on the {@link IFileBackedTaskRepository}.
@@ -53,7 +55,7 @@ public class TaskFlusher {
      * The repository is flushed every 10 seconds to persist changes.
      */
     public void start() {
-        scheduler.scheduleAtFixedRate(flushTask, 0, 60, TimeUnit.SECONDS);
+        scheduler.scheduleAtFixedRate(flushTask, 0, 30, TimeUnit.SECONDS);
     }
 
     /**
