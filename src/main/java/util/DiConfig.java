@@ -22,7 +22,7 @@ import repository.ITaskRepository;
 import repository.entityManager.BabyEntityManager;
 import repository.entityManager.TaskFlusher;
 import repository.event.TaskEventLogger;
-import runtime.ActionHandler;
+import service.ActionHandler;
 import runtime.IBotRunTime;
 import service.ITaskService;
 import service.TaskRepositoryCoordinatorService;

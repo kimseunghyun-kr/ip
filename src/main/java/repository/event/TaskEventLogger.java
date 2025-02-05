@@ -1,17 +1,31 @@
 package repository.event;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
+
 import entity.tasks.Task;
 import util.DataFileUtils;
 import util.TaskDeserializer;
 import util.TaskSerializer;
 
-import java.io.*;
-import java.nio.file.*;
-import java.util.*;
+
 
 public class TaskEventLogger {
-    private final Path logFilePath;
     private static final String TEMP_LOG_FILE_SUFFIX = ".tmp";
+    private final Path logFilePath;
 
     public TaskEventLogger(Path logFilePath) {
         this.logFilePath = logFilePath;
@@ -19,9 +33,11 @@ public class TaskEventLogger {
     }
 
     private synchronized void handleEvent(TaskEvent event) {
-        try (BufferedWriter writer = Files.newBufferedWriter(logFilePath, StandardOpenOption.CREATE, StandardOpenOption.APPEND)) {
+        try (BufferedWriter writer = Files.newBufferedWriter(logFilePath,
+                StandardOpenOption.CREATE, StandardOpenOption.APPEND)) {
             switch (event.getType()) {
-            case ADD, UPDATE -> writer.write(event.getType() + " " + TaskSerializer.serializeTask(event.getTask()) + "\n");
+            case ADD, UPDATE -> writer.write(event.getType() + " "
+                    + TaskSerializer.serializeTask(event.getTask()) + "\n");
             case DELETE -> writer.write("DELETE " + event.getTaskId() + "\n");
             }
         } catch (IOException e) {
@@ -30,7 +46,9 @@ public class TaskEventLogger {
     }
 
     public synchronized void replayLog(Path filePath) {
-        if (!Files.exists(logFilePath)) return; // No logs to apply
+        if (!Files.exists(logFilePath)) {
+            return; // No logs to apply
+        }
 
         Path tempFilePath = Paths.get(filePath.toString() + ".tmp");
 
@@ -50,7 +68,9 @@ public class TaskEventLogger {
                 List<String> logLines = DataFileUtils.readNonEmptyLines(logFilePath);
                 for (String logLine : logLines) {
                     String[] parts = logLine.split(" ", 2);
-                    if (parts.length < 2) continue;  // Ignore corrupt lines
+                    if (parts.length < 2) {
+                        continue; // Ignore corrupt lines
+                    }
 
                     TaskEvent.EventType eventType;
                     try {
@@ -77,11 +97,11 @@ public class TaskEventLogger {
             }
 
             // Write the updated tasks to the temporary file with the correct format
-            writer.write("[\n");  // Write opening bracket
+            writer.write("[\n"); // Write opening bracket
             for (Task task : storageMap.values()) {
                 writer.write(TaskSerializer.serializeTask(task) + "\n");
             }
-            writer.write("]\n");  // Write closing bracket
+            writer.write("]\n"); // Write closing bracket
 
         } catch (IOException e) {
             System.err.println("Error applying logs to file: " + e.getMessage());
@@ -107,7 +127,7 @@ public class TaskEventLogger {
      * @return The modified list after log replay.
      */
     public int tryLogReplay(List<Task> testList) {
-        if (!Files.exists(logFilePath)) Objects.hash(testList.toArray()); // Order-sensitive; // Return unchanged if no log
+        if (!Files.exists(logFilePath)) Objects.hash(testList.toArray()); // Order-sensitive; Return unchanged if no log
 
         List<Task> replayedList = new ArrayList<>(testList);
         Map<UUID, Task> tempStorage = new LinkedHashMap<>();
@@ -119,7 +139,9 @@ public class TaskEventLogger {
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(" ", 2);
-                if (parts.length < 2) continue;  // Ignore corrupt lines
+                if (parts.length < 2) {
+                    continue; // Ignore corrupt lines
+                }
 
                 TaskEvent.EventType eventType;
                 try {
@@ -165,7 +187,8 @@ public class TaskEventLogger {
     private void rewriteLog(Collection<Task> tasks) {
         Path tempLogFilePath = Paths.get(logFilePath.toString() + TEMP_LOG_FILE_SUFFIX);
 
-        try (BufferedWriter writer = Files.newBufferedWriter(tempLogFilePath, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
+        try (BufferedWriter writer = Files.newBufferedWriter(tempLogFilePath, StandardOpenOption.CREATE,
+                StandardOpenOption.TRUNCATE_EXISTING)) {
             for (Task task : tasks) {
                 writer.write("ADD " + TaskSerializer.serializeTask(task) + "\n");
             }

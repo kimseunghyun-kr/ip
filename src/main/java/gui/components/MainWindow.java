@@ -8,8 +8,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
-import runtime.ActionHandler;
-import runtime.CommandDao;
+import service.ActionHandler;
+import service.CommandDao;
 
 /**
  * Controller for MainWindow. Provides the layout for the other controls.

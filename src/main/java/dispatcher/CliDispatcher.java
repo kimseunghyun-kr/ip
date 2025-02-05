@@ -9,8 +9,8 @@ import java.util.Scanner;
 import controller.ControllerResponse;
 import entity.command.TerminationCommand;
 import exceptions.UserFacingException;
-import runtime.ActionHandler;
-import runtime.CommandDao;
+import service.ActionHandler;
+import service.CommandDao;
 
 public class CliDispatcher implements IDispatcher {
     /** Scanner for reading user input. */

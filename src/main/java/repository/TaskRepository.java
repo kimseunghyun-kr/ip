@@ -1,13 +1,18 @@
 package repository;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+
 import entity.TaskType;
 import entity.tasks.DeadLine;
 import entity.tasks.Events;
 import entity.tasks.Task;
 import exceptions.UserFacingException;
-
-import java.time.LocalDateTime;
-import java.util.*;
 
 public class TaskRepository implements ITaskRepository {
     protected final List<Task> storageList = new ArrayList<>();
@@ -44,7 +49,8 @@ public class TaskRepository implements ITaskRepository {
     @Override
     public Optional<Task> findByOrder(Integer index) {
         if (index < 0 || index >= storageList.size()) {
-            throw new UserFacingException("Index " + (index + 1) + " is out of bounds (1 - " + storageList.size() + ")");
+            throw new UserFacingException("Index " + (index + 1)
+                    + " is out of bounds (1 - " + storageList.size() + ")");
         }
         return Optional.ofNullable(storageList.get(index));
     }
@@ -52,11 +58,12 @@ public class TaskRepository implements ITaskRepository {
     @Override
     public Task deleteByOrder(Integer index) {
         if (index < 0 || index >= storageList.size()) {
-            throw new UserFacingException("Index " + (index + 1) + " is out of bounds (1 - " + storageList.size() + ")");
+            throw new UserFacingException("Index " + (index + 1)
+                    + " is out of bounds (1 - " + storageList.size() + ")");
         }
 
         Task task = storageList.get(index);
-        storageList.remove((int)index); // Maintain list order
+        storageList.remove((int) index); // Maintain list order
         storageMap.remove(task.getId()); // Remove from fast lookup
         return task;
     }
@@ -90,9 +97,15 @@ public class TaskRepository implements ITaskRepository {
 
     @Override
     public List<Task> findTaskWithKeyword(String keyword) {
-        return storageList.stream().filter(entry -> {
-            return entry.getName().contains(keyword);
-        }).toList();
+        return storageList.stream().filter(entry -> entry.getName().contains(keyword)).toList();
+    }
+
+    @Override
+    public List<Task> deleteAll() {
+        List<Task> result = new ArrayList<>(this.storageList);
+        storageList.clear();
+        storageMap.clear();
+        return result;
     }
 
 }
