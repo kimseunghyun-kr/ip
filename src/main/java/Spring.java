@@ -8,39 +8,67 @@ import runtime.IBotRunTime;
 import util.DirectoryInitializeUtils;
 
 
+/**
+ * The {@code Spring} class serves as the entry point for launching either the GUI or CLI runtime.
+ * It initializes the Dependency Injection (DI) container, sets up required configurations,
+ * and starts the appropriate runtime environment.
+ */
 public class Spring {
+
+    /**
+     * The main method to start the application.
+     *
+     * @param args command-line arguments passed during application startup.
+     */
     public static void main(String[] args) {
         DependencyInjectionContainer container = new DependencyInjectionContainer();
-        guiLaunch(container, args);
+        launchGuiMode(container, args);
     }
 
-    private static void guiLaunch(DependencyInjectionContainer container, String[] args) {
-        // Initialize the DI container
-        Path filePath = DirectoryInitializeUtils.initializeDataDirectory();
-        Path logPath = DirectoryInitializeUtils.initializeLogDirectory();
-        registerConfig(container, logPath, filePath, false);
+    /**
+     * Launches the GUI runtime by initializing required dependencies and setting up the environment.
+     *
+     * @param container The Dependency Injection (DI) container.
+     * @param args      Command-line arguments passed for GUI configuration.
+     */
+    private static void launchGuiMode(DependencyInjectionContainer container, String[] args) {
+        // Initialize the directories
+        Path dataDirectoryPath = DirectoryInitializeUtils.initializeDataDirectory();
+        Path logDirectoryPath = DirectoryInitializeUtils.initializeLogDirectory();
+
+        // Register configurations in the DI container
+        registerConfig(container, logDirectoryPath, dataDirectoryPath, false);
+
         // Pre-initialize all dependencies
         container.initialize();
 
-        // Start the CLI runtime
-        IBotRunTime botRunTime = container.resolve(IBotRunTime.class);
+        // Start the GUI runtime
+        IBotRunTime botRuntime = container.resolve(IBotRunTime.class);
         GuiDispatcher guiDispatcher = container.resolve(GuiDispatcher.class);
         guiDispatcher.setArgs(args);
-        botRunTime.run();
+        botRuntime.run();
     }
 
-    private static void cliLaunch(DependencyInjectionContainer container) {
-        // Initialize the DI container
-        Path filePath = DirectoryInitializeUtils.initializeDataDirectory();
-        Path logPath = DirectoryInitializeUtils.initializeLogDirectory();
+    /**
+     * Launches the CLI runtime by initializing required dependencies and setting up the environment.
+     *
+     * @param container The Dependency Injection (DI) container.
+     */
+    private static void launchCliMode(DependencyInjectionContainer container) {
+        // Initialize the directories
+        Path dataDirectoryPath = DirectoryInitializeUtils.initializeDataDirectory();
+        Path logDirectoryPath = DirectoryInitializeUtils.initializeLogDirectory();
 
-        registerConfig(container, logPath, filePath, true);
+        // Register configurations in the DI container
+        registerConfig(container, logDirectoryPath, dataDirectoryPath, true);
 
         // Pre-initialize all dependencies
         container.initialize();
 
         // Start the CLI runtime
-        IBotRunTime botRunTime = container.resolve(IBotRunTime.class);
-        botRunTime.run();
+        IBotRunTime botRuntime = container.resolve(IBotRunTime.class);
+        botRuntime.run();
     }
 }
+
+

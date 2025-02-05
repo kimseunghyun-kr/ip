@@ -28,7 +28,8 @@ import service.ITaskService;
 import service.TaskRepositoryCoordinatorService;
 
 public class DiConfig {
-    public static void registerConfig(DependencyInjectionContainer container, Path logPath, Path filePath, boolean cli) {
+    public static void registerConfig(DependencyInjectionContainer container, Path logPath,
+                                      Path filePath, boolean cli) {
         // Register interceptors
         container.registerInterceptor(Log.class, new LoggingInterceptor());
         container.registerInterceptor(Transactional.class, new TransactionalInterceptor());

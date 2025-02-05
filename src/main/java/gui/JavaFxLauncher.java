@@ -33,7 +33,7 @@ public class JavaFxLauncher extends Application {
             String css = this.getClass().getResource("/css/Stage.css").toExternalForm();
             scene.getStylesheets().add(css);
             // Window formatting
-            stage.setTitle("REM Task Manager"); // Set the title of the application
+            stage.setTitle("Task Manager"); // Set the title of the application
             stage.setResizable(true);
             fxmlLoader.<MainWindow>getController().setActionHandler(staticActionHandler);
             stage.show();
