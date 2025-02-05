@@ -80,6 +80,11 @@ public class TaskService implements ITaskService {
     }
 
     @Override
+    public List<Task> deleteAll() {
+        return taskRepository.deleteAll();
+    }
+
+    @Override
     public List<Task> searchByDate(TaskType type, LocalDateTime from, LocalDateTime to) {
         return taskRepository.findAllFromWhenToWhen(type, from, to); // ✅ Return list of tasks
     }

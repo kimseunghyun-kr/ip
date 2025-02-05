@@ -90,4 +90,12 @@ public interface ITaskService extends Proxiable {
      */
     @ExceptionHandler
     List<Task> searchByKeyword(String keyword);
+
+    /**
+     * Searches for tasks by a keyword.
+     *
+     * @return A List of all Tasks Deleted.
+     */
+    @ExceptionHandler
+    List<Task> deleteAll();
 }

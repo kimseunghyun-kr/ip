@@ -1,17 +1,32 @@
 package repository;
 
+import static util.TaskDeserializer.deserializeTask;
+import static util.TaskSerializer.serializeTask;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
+
 import entity.tasks.Task;
 import repository.event.TaskEvent;
 import repository.event.TaskEventLogger;
 import repository.event.TaskEventObject;
 import util.DataFileUtils;
 
-import java.io.*;
-import java.nio.file.*;
-import java.util.*;
 
-import static util.TaskDeserializer.deserializeTask;
-import static util.TaskSerializer.serializeTask;
+
 
 /**
  * A file-backed implementation of {@link IFileBackedTaskRepository}.
@@ -74,6 +89,20 @@ public class FileBackedTaskRepository extends TaskRepository implements IFileBac
             TaskEventObject.getInstance().dispatch(new TaskEvent(TaskEvent.EventType.DELETE, task.getId()));
         }
         return task;
+    }
+
+    /**
+     * Deletes all tasks and marks it for persistence.
+     */
+    @Override
+    public List<Task> deleteAll() {
+        List<Task> deleted = super.deleteAll();
+        deleted.forEach(task -> {
+            dirtySet.add(task.getId());
+            TaskEventObject.getInstance()
+                .dispatch(new TaskEvent(TaskEvent.EventType.DELETE, task.getId()));
+        });
+        return deleted;
     }
 
     /**

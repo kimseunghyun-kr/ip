@@ -89,4 +89,6 @@ public interface ITaskRepository extends CrudRepository<Task, UUID>, Proxiable {
      * @return A list of tasks that contain the specified keyword.
      */
     List<Task> findTaskWithKeyword(String keyword);
+
+    List<Task> deleteAll();
 }
