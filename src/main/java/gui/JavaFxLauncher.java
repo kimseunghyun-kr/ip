@@ -1,16 +1,13 @@
 package gui;
 
 import java.io.IOException;
+import java.util.Objects;
 
-import controller.ITaskController;
-import gui.components.MainWindow;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
-import service.CommandExecutionService;
-
 
 /**
  * launcher class for the GUI javafx application
@@ -26,7 +23,7 @@ public class JavaFxLauncher extends Application {
             stage.setScene(scene);
 
             //css
-            String css = this.getClass().getResource("/css/Stage.css").toExternalForm();
+            String css = Objects.requireNonNull(this.getClass().getResource("/css/Stage.css")).toExternalForm();
             scene.getStylesheets().add(css);
             // Window formatting
             stage.setTitle("Task Manager"); // Set the title of the application

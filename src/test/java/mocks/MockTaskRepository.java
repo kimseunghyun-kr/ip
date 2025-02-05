@@ -77,4 +77,9 @@ public class MockTaskRepository implements ITaskRepository, IFileBackedTaskRepos
     public List<Task> findTaskWithKeyword(String keyword) {
         return temptaskStore;
     }
+
+    @Override
+    public List<Task> deleteAll() {
+        return List.of();
+    }
 }

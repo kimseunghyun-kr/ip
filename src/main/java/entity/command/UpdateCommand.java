@@ -9,14 +9,29 @@ import exceptions.UserFacingException;
 import service.dao.TaskUpdateDao;
 import util.DateTimeUtils;
 
+/**
+ * Command to update an existing task.
+ */
 public class UpdateCommand implements Command {
-    private ITaskController taskController;
     public static final String INTERACTIVEMODESTRING = "IINIT";
+    private ITaskController taskController;
+    /**
+     * Sets the task controller.
+     *
+     * @param taskService the task controller instance
+     */
     @Override
     public void setTaskController(ITaskController taskService) {
         this.taskController = taskService;
     }
 
+    /**
+     * Executes the update command.
+     *
+     * @param parameters list of parameters for updating the task
+     * @return ControllerResponse containing the updated task
+     * @throws UserFacingException if parameters are invalid or missing
+     */
     @Override
     public ControllerResponse<Task> execute(List<String> parameters) {
         if (parameters.isEmpty()) {
@@ -38,13 +53,22 @@ public class UpdateCommand implements Command {
         return taskController.updateTask(taskId, updateDao);
     }
 
+    /**
+     * Parses the parameters for task update.
+     *
+     * @param parameters list of update parameters
+     * @return TaskUpdateDao object containing parsed data
+     * @throws UserFacingException if format is invalid
+     */
     private TaskUpdateDao parseParameters(List<String> parameters) {
         parameters.remove(0);
         TaskUpdateDao.TaskUpdateDaoBuilder builder = TaskUpdateDao.builder();
 
         for (String param : parameters) {
             String[] keyValue = param.split("::", 2);
-            if (keyValue.length != 2) throw new UserFacingException("Invalid format: " + param);
+            if (keyValue.length != 2) {
+                throw new UserFacingException("Invalid format: " + param);
+            }
 
             switch (keyValue[0].toLowerCase()) {
             case "tasktype" -> builder.taskType(keyValue[1]);
@@ -55,14 +79,27 @@ public class UpdateCommand implements Command {
             default -> throw new UserFacingException("Unknown attribute: " + keyValue[0]);
             }
         }
-
         return builder.build();
     }
 
+    /**
+     * Checks if the task type is being changed.
+     *
+     * @param existingTask the existing task
+     * @param updateDao the update data
+     * @return true if task type is changing, false otherwise
+     */
     private boolean isTaskTypeChanging(Task existingTask, TaskUpdateDao updateDao) {
         return updateDao.getTaskType() != null
                 && !existingTask.getClass().getSimpleName().equalsIgnoreCase(updateDao.getTaskType());
     }
+
+    /**
+     * Validates the new task data if task type is changing.
+     *
+     * @param updateDao the update data
+     * @throws UserFacingException if required fields are missing for the new task type
+     */
     private void validateNewTaskData(TaskUpdateDao updateDao) {
         switch (updateDao.getTaskType()) {
         case "Event" -> {
@@ -83,9 +120,4 @@ public class UpdateCommand implements Command {
         default -> throw new UserFacingException("Unknown task type: " + updateDao.getTaskType());
         }
     }
-
-
-
-
-
 }

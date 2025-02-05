@@ -19,7 +19,6 @@ import gui.JavaFxLauncher;
 import repository.FileBackedTaskRepository;
 import repository.IFileBackedTaskRepository;
 import repository.ITaskRepository;
-import repository.entitymanager.BabyEntityManager;
 import repository.entitymanager.TaskFlusher;
 import repository.event.TaskEventLogger;
 import runtime.IBotRunTime;
@@ -31,7 +30,28 @@ import service.interactiveexecutionservice.CliInteractiveExecutionService;
 import service.interactiveexecutionservice.GuiInteractiveExecutionService;
 import service.interactiveexecutionservice.InteractiveExecutionService;
 
+/**
+ * Configuration class for dependency injection setup.
+ * <p>
+ * This class registers components, interceptors, and services in the
+ * {@link DependencyInjectionContainer}, allowing for dependency management
+ * across the application.
+ * </p>
+ */
 public class DiConfig {
+
+    /**
+     * Registers configurations and dependencies in the given dependency injection container.
+     * <p>
+     * This method sets up interceptors, repositories, services, and controllers.
+     * Depending on the {@code cli} flag, it registers either CLI or GUI-specific components.
+     * </p>
+     *
+     * @param container The dependency injection container where components are registered.
+     * @param logPath   The path for logging events.
+     * @param filePath  The path for file-backed task storage.
+     * @param cli       A flag indicating whether the application runs in CLI mode.
+     */
     public static void registerConfig(DependencyInjectionContainer container, Path logPath,
                                       Path filePath, boolean cli) {
         // Register interceptors
@@ -62,7 +82,5 @@ public class DiConfig {
         container.register(ActionHandler.class);
         container.register(CommandFactory.class);
         container.register(TaskFlusher.class);
-        container.register(BabyEntityManager.class);
-
     }
 }

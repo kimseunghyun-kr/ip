@@ -3,7 +3,6 @@ import static util.config.DiConfig.registerConfig;
 import java.nio.file.Path;
 
 import dicontainer.DependencyInjectionContainer;
-import dispatcher.GuiDispatcher;
 import runtime.IBotRunTime;
 import util.DirectoryInitializeUtils;
 import util.config.FxmlStaticSetterInjectionConfig;

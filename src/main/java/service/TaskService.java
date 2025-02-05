@@ -26,7 +26,14 @@ public class TaskService implements ITaskService {
      */
     private final ITaskRepository taskRepository;
 
-    public TaskService(TaskRepositoryCoordinatorService taskRepositoryCoordinatorService, ITaskRepository taskRepository) {
+    /**
+     * Constructs a {@code TaskService} with the required repository services.
+     *
+     * @param taskRepositoryCoordinatorService The service responsible for coordinating repository interactions.
+     * @param taskRepository                   The repository managing task storage and retrieval.
+     */
+    public TaskService(TaskRepositoryCoordinatorService taskRepositoryCoordinatorService,
+                       ITaskRepository taskRepository) {
         this.taskRepositoryCoordinatorService = taskRepositoryCoordinatorService;
         this.taskRepository = taskRepository;
     }

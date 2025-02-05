@@ -6,6 +6,13 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.SuperBuilder;
 
 
+/**
+ * Represents a deadline task with a specific due date and time.
+ * <p>
+ * This class extends {@link Task} and includes a {@code dueby} field
+ * to indicate when the task is due.
+ * </p>
+ */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @SuperBuilder
@@ -13,6 +20,12 @@ public class DeadLine extends Task {
 
     private final LocalDateTime dueby;
 
+    /**
+     * Constructs a {@code DeadLine} task with the specified name and due date.
+     *
+     * @param name  The name of the deadline task.
+     * @param dueby The date and time by which the task is due.
+     */
     public DeadLine(String name, LocalDateTime dueby) {
         super(name);
         this.dueby = dueby;
@@ -34,9 +47,5 @@ public class DeadLine extends Task {
         builder.append("UUID:: ");
         builder.append(super.getId());
         return builder.toString();
-    }
-
-    public LocalDateTime getDueby() {
-        return dueby;
     }
 }

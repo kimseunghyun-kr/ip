@@ -1,11 +1,22 @@
 package util;
 
+/**
+ * Utility class for chatbot functionalities such as displaying separators,
+ * introduction, exit sequences, and logo generation.
+ */
 public class ChatBotUtil {
+
+    /**
+     * Prints a line separator for visual clarity.
+     */
     public static void linesep() {
         String linesep = "______________________________________________\n";
         System.out.println(linesep);
     }
 
+    /**
+     * Displays the introduction sequence with a greeting and logo.
+     */
     public static void introSequence() {
         String greet = "Hello from\n";
         String greet2 = "what can I do for you today \n";
@@ -16,27 +27,33 @@ public class ChatBotUtil {
         System.out.println(greet2);
     }
 
+    /**
+     * Displays the exit sequence message.
+     */
     public static void exitSequence() {
         String exitSeq = "exiting";
         System.out.println(exitSeq);
         linesep();
     }
 
+    /**
+     * Generates a colorful logo string.
+     *
+     * @return a string representation of the logo with colors.
+     */
     public static String logoGen() {
         String[] words = getBaseLogo();
         String[] colors = {
-                "\033[31m", // Red
-                "\033[38;2;255;165;0m", // Orange
-                "\033[33m", // Yellow
-                "\033[32m", // Green
-                "\033[34m", // Blue
-                "\033[35m" // Magenta (Purple)
+            "\033[31m", // Red
+            "\033[38;2;255;165;0m", // Orange
+            "\033[33m", // Yellow
+            "\033[32m", // Green
+            "\033[34m", // Blue
+            "\033[35m" // Magenta (Purple)
         };
         String reset = "\033[0m";
 
-
         StringBuilder coloredLogo = new StringBuilder();
-
         int colorIndex = 0;
         for (String word : words) {
             if (!word.isEmpty()) {
@@ -48,6 +65,11 @@ public class ChatBotUtil {
         return coloredLogo.toString();
     }
 
+    /**
+     * Retrieves the base logo as an array of strings.
+     *
+     * @return an array representing the logo in text format.
+     */
     private static String[] getBaseLogo() {
         String logo = """
                 .d8888.; d8888b.; d8888b.; d888888b; d8b   db;  d888b; \s
@@ -57,8 +79,6 @@ public class ChatBotUtil {
                 db   8D; 88;      88 `88.;   .88.;   88  V888; 88. ~8~;\s
                 `8888Y'; 88;      88   YD; Y888888P; VP   V8P;  Y888P; \s
                 """;
-
         return logo.split(";");
     }
-
 }
