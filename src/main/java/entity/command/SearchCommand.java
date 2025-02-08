@@ -18,6 +18,7 @@ import util.DateTimeUtils;
  */
 public class SearchCommand implements Command {
     private ITaskController taskController;
+
     @Override
     public void setTaskController(ITaskController taskController) {
         this.taskController = taskController;
@@ -51,10 +52,10 @@ public class SearchCommand implements Command {
                 return taskController.searchByDate(TaskType.EVENT, val2, val3);
             } else if (val1.equals(TaskType.EVENT) && parameters.size() == 3) {
                 LocalDateTime val2 = DateTimeUtils.parseDateOrDateTime(parameters.get(2));
-                return taskController.searchByDate(TaskType.EVENT , val2, null);
+                return taskController.searchByDate(TaskType.EVENT, val2, null);
             } else if (val1.equals(TaskType.DEADLINE) && parameters.size() == 4) {
                 LocalDateTime val3 = DateTimeUtils.parseDateOrDateTime(parameters.get(3));
-                return taskController.searchByDate(TaskType.DEADLINE , val3, null);
+                return taskController.searchByDate(TaskType.DEADLINE, val3, null);
             }
             throw new UserFacingException("Date search term requires at least two parameters \n"
                     + "in the format search date <event/deadline> <null/yyyy-mm-dd> <null/yyyy-mm-dd>");

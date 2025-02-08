@@ -15,6 +15,7 @@ import service.ITaskService;
  */
 public class DeleteCommand implements Command {
     private ITaskController taskController;
+
     @Override
     public void setTaskController(ITaskController taskController) {
         this.taskController = taskController;

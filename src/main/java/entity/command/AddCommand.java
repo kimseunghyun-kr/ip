@@ -8,14 +8,15 @@ import exceptions.UserFacingException;
 import service.ITaskService;
 
 
-
 /**
  * Represents the "Add / insertion" command in the task management system.
  * This command interacts with {@link ITaskService} to add a new task
  * based on the provided parameters.
  */
 public class AddCommand implements Command {
-    /** The task service used to manage tasks. */
+    /**
+     * The task service used to manage tasks.
+     */
     private ITaskController taskController;
 
     /**

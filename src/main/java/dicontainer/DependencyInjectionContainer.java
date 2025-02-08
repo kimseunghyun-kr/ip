@@ -21,8 +21,6 @@ import dicontainer.aopinterfaces.Interceptor;
 import dicontainer.aopinterfaces.annotationinterfaces.ProxyEnabled;
 
 
-
-
 /**
  * A lightweight dependency injection (DI) container with support for aspect-oriented programming (AOP).
  * This container allows for registering, resolving, and managing object dependencies while supporting
@@ -41,26 +39,34 @@ import dicontainer.aopinterfaces.annotationinterfaces.ProxyEnabled;
  * @since v0.1-cli
  */
 public class DependencyInjectionContainer {
-    /** Indicates whether the container has been initialized. */
-    private boolean initialized = false;
-
-    /** Maps a requested type (interface or class) to its registered implementation. */
+    /**
+     * Maps a requested type (interface or class) to its registered implementation.
+     */
     private final Map<Class<?>, Class<?>> registrations = new HashMap<>();
-
-    /** Stores instantiated objects after creation, possibly wrapped with proxies. */
+    /**
+     * Stores instantiated objects after creation, possibly wrapped with proxies.
+     */
     private final Map<Class<?>, Object> instances = new HashMap<>();
-
-    /** Stores constructor argument overrides for registered classes. */
+    /**
+     * Stores constructor argument overrides for registered classes.
+     */
     private final Map<Class<?>, Map<Class<?>, Object>> constructorArgs = new HashMap<>();
-
-    /** Dependency graph mapping each class to its required dependencies. */
+    /**
+     * Dependency graph mapping each class to its required dependencies.
+     */
     private final Map<Class<?>, Set<Class<?>>> dependencyGraph = new HashMap<>();
-
-    /** Tracks types that require proxy-based AOP. */
+    /**
+     * Tracks types that require proxy-based AOP.
+     */
     private final Set<Class<?>> proxyEnabledTypes = new HashSet<>();
-
-    /** Maps annotation types to their corresponding interceptors for method-level AOP. */
+    /**
+     * Maps annotation types to their corresponding interceptors for method-level AOP.
+     */
     private final Map<Class<? extends Annotation>, Interceptor> interceptors = new HashMap<>();
+    /**
+     * Indicates whether the container has been initialized.
+     */
+    private boolean initialized = false;
 
 
     // ========== Registration Methods ==========
@@ -207,6 +213,7 @@ public class DependencyInjectionContainer {
     /**
      * Build or update the dependency graph for the given type.
      * If it's an interface, we look up its chosen implementation.
+     *
      * @param type The class whose dependencies need to be tracked.
      */
     private void buildDependencyGraph(Class<?> type) {
@@ -413,6 +420,7 @@ public class DependencyInjectionContainer {
     /**
      * Create (and store) a single instance for the given concrete class, respecting constructor args,
      * and possibly wrapping with a JDK proxy if needed.
+     *
      * @param implClass The concrete class to instantiate.
      */
     private void createInstanceFor(Class<?> implClass) {
@@ -579,7 +587,7 @@ public class DependencyInjectionContainer {
     /**
      * Registers an interceptor for methods annotated with a given annotation.
      *
-     * @param annotation The annotation type.
+     * @param annotation  The annotation type.
      * @param interceptor The interceptor instance.
      */
     public void registerInterceptor(Class<? extends Annotation> annotation, Interceptor interceptor) {

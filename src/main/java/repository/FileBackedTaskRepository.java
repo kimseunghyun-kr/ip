@@ -26,8 +26,6 @@ import repository.event.TaskEventObject;
 import util.DataFileUtils;
 
 
-
-
 /**
  * A file-backed implementation of {@link IFileBackedTaskRepository}.
  * This repository persists tasks to disk and manages buffered writes to reduce I/O operations.
@@ -100,7 +98,7 @@ public class FileBackedTaskRepository extends TaskRepository implements IFileBac
         deleted.forEach(task -> {
             dirtySet.add(task.getId());
             TaskEventObject.getInstance()
-                .dispatch(new TaskEvent(TaskEvent.EventType.DELETE, task.getId()));
+                    .dispatch(new TaskEvent(TaskEvent.EventType.DELETE, task.getId()));
         });
         return deleted;
     }
@@ -222,7 +220,6 @@ public class FileBackedTaskRepository extends TaskRepository implements IFileBac
 
         return returnListOnly ? taskList : null;
     }
-
 
 
     /**

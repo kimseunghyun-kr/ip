@@ -13,9 +13,13 @@ import service.ActionHandler;
 import service.CommandDao;
 
 public class CliDispatcher implements IDispatcher {
-    /** Scanner for reading user input. */
+    /**
+     * Scanner for reading user input.
+     */
     private final Scanner scanner = new Scanner(System.in);
-    /** Handles action resolution and command execution. */
+    /**
+     * Handles action resolution and command execution.
+     */
     private final ActionHandler actionHandler;
 
     public CliDispatcher(ActionHandler actionHandler) {

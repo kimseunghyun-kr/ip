@@ -5,8 +5,9 @@ import java.time.LocalDateTime;
 
 public class Events extends Task {
 
-    private LocalDateTime startat;
-    private LocalDateTime endby;
+    private final LocalDateTime startat;
+    private final LocalDateTime endby;
+
     public Events(String name, LocalDateTime startat, LocalDateTime endby) {
         super(name);
         this.startat = startat;

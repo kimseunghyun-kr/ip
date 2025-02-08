@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-
 import entity.TaskType;
 import entity.tasks.Task;
 import repository.IFileBackedTaskRepository;
@@ -19,7 +18,6 @@ public class MockTaskRepository implements ITaskRepository, IFileBackedTaskRepos
 
     @Override
     public void flush() {
-        return;
     }
 
     @Override
@@ -56,7 +54,7 @@ public class MockTaskRepository implements ITaskRepository, IFileBackedTaskRepos
     @Override
     public Task deleteByOrder(Integer id) {
         Task task = temptaskStore.get(id);
-        temptaskStore.remove((int)id);
+        temptaskStore.remove((int) id);
         return task;
     }
 

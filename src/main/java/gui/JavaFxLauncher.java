@@ -16,6 +16,7 @@ import service.ActionHandler;
  */
 public class JavaFxLauncher extends Application {
     private static ActionHandler staticActionHandler;
+
     // For convenience, expose static setters:
     public static void setActionHandler(ActionHandler handler) {
         staticActionHandler = handler;

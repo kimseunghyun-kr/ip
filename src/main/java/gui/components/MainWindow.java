@@ -1,6 +1,8 @@
 package gui.components;
 
 import controller.ControllerResponse;
+import entity.command.TerminationCommand;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
@@ -15,6 +17,8 @@ import service.CommandDao;
  * Controller for MainWindow. Provides the layout for the other controls.
  */
 public class MainWindow extends AnchorPane {
+    private final Image userImage = new Image(this.getClass().getResourceAsStream("/images/verstappen.jpg"));
+    private final Image dukeImage = new Image(this.getClass().getResourceAsStream("/images/amiya.png"));
     @FXML
     private ScrollPane scrollPane;
     @FXML
@@ -23,11 +27,7 @@ public class MainWindow extends AnchorPane {
     private TextField userInput;
     @FXML
     private Button sendButton;
-
     private ActionHandler actionHandler;
-
-    private final Image userImage = new Image(this.getClass().getResourceAsStream("/images/verstappen.jpg"));
-    private final Image dukeImage = new Image(this.getClass().getResourceAsStream("/images/amiya.png"));
 
     /**
      * initialises the javafx application
@@ -68,8 +68,12 @@ public class MainWindow extends AnchorPane {
     }
 
     public String getResponse(String input) {
-        CommandDao c = actionHandler.resolveAction(input);
-        ControllerResponse response = c.execute();
+        CommandDao commandObject = actionHandler.resolveAction(input);
+        ControllerResponse response = commandObject.execute();
+        if (commandObject.getCommand() instanceof TerminationCommand) {
+            DialogBox.getDialogBox(response.toString(), dukeImage);
+            Platform.exit();
+        }
         return response.toString();
     }
 }

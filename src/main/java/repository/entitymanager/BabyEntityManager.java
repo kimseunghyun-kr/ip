@@ -1,9 +1,10 @@
 package repository.entitymanager;
-import entity.tasks.Task;
-import repository.ITaskRepository;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import entity.tasks.Task;
+import repository.ITaskRepository;
 
 /**
  * A toy "EntityManager" that simulates
@@ -12,9 +13,9 @@ import java.util.List;
 public class BabyEntityManager {
 
     private final ITaskRepository repository;
-    private boolean inTransaction = false;
     private final List<Task> newEntities = new ArrayList<>();
     private final List<Integer> removedEntities = new ArrayList<>();
+    private boolean inTransaction = false;
 
     public BabyEntityManager(ITaskRepository repository) {
         this.repository = repository;

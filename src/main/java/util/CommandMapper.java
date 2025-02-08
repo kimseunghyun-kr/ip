@@ -79,7 +79,7 @@ public class CommandMapper {
     /**
      * Checks if two strings are similar based on Levenshtein distance.
      *
-     * @param input The user-provided command.
+     * @param input        The user-provided command.
      * @param validCommand A known valid command.
      * @return True if the input is close to the valid command.
      */
