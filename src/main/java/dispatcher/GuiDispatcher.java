@@ -9,8 +9,8 @@ import service.ActionHandler;
  * Dispatches the GUI application by launching JavaFX.
  */
 public class GuiDispatcher implements IDispatcher {
-    private String[] args;
     private final ActionHandler actionHandler;
+    private String[] args;
 
     public GuiDispatcher(ActionHandler actionHandler) {
         this.actionHandler = actionHandler;

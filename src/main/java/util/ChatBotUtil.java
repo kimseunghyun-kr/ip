@@ -15,20 +15,22 @@ public class ChatBotUtil {
         linesep();
         System.out.println(greet2);
     }
+
     public static void exitSequence() {
         String exitSeq = "exiting";
         System.out.println(exitSeq);
         linesep();
     }
+
     public static String logoGen() {
         String[] words = getBaseLogo();
         String[] colors = {
-            "\033[31m", // Red
-            "\033[38;2;255;165;0m", // Orange
-            "\033[33m", // Yellow
-            "\033[32m", // Green
-            "\033[34m", // Blue
-            "\033[35m" // Magenta (Purple)
+                "\033[31m", // Red
+                "\033[38;2;255;165;0m", // Orange
+                "\033[33m", // Yellow
+                "\033[32m", // Green
+                "\033[34m", // Blue
+                "\033[35m" // Magenta (Purple)
         };
         String reset = "\033[0m";
 

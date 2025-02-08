@@ -9,6 +9,7 @@ public class ControllerResponse {
         this.message = message;
         this.data = data;
     }
+
     public ControllerResponse(String message) {
         this.message = message;
         this.data = null;

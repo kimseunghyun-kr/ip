@@ -6,7 +6,9 @@ import controller.ControllerResponse;
 import controller.ITaskController;
 
 public class ClearCommand implements Command {
-    /** The task service used to manage tasks. */
+    /**
+     * The task service used to manage tasks.
+     */
     private ITaskController taskController;
 
     /**
@@ -18,6 +20,7 @@ public class ClearCommand implements Command {
     public void setTaskController(ITaskController taskController) {
         this.taskController = taskController;
     }
+
     @Override
     public ControllerResponse execute(List<String> parameters) {
         return taskController.deleteAll();

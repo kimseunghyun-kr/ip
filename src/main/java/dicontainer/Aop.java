@@ -10,8 +10,6 @@ import dicontainer.aopinterfaces.Interceptor;
 import dicontainer.aopinterfaces.annotationinterfaces.ExceptionHandler;
 
 
-
-
 /**
  * Provides dynamic proxy-based aspect-oriented programming (AOP) support.
  * This class allows for method-level interception based on custom annotations.
@@ -29,10 +27,10 @@ public class Aop {
      * Creates a dynamic proxy for the given target object.
      * The proxy intercepts method calls based on the provided annotations and applies corresponding interceptors.
      *
-     * @param target         The original object being proxied.
-     * @param interceptors   A mapping of annotation classes to their corresponding interceptors.
+     * @param target            The original object being proxied.
+     * @param interceptors      A mapping of annotation classes to their corresponding interceptors.
      * @param interfacesToProxy The interfaces that the proxy should implement.
-     * @param <T>           The type of the proxied object.
+     * @param <T>               The type of the proxied object.
      * @return A proxy instance that applies AOP logic.
      */
     @SuppressWarnings("unchecked")

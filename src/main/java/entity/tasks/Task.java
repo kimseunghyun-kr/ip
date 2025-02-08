@@ -36,13 +36,18 @@ public class Task {
             builder.append("[ ] ");
         }
         builder.append(name);
-        builder.append("         " );
+        builder.append("         ");
         builder.append("UUID:: ");
         builder.append(this.id);
         return builder.toString();
     }
+
     public UUID getId() {
         return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -55,10 +60,6 @@ public class Task {
 
     public void setCompleted(Boolean completed) {
         isCompleted = completed;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
     }
 
     @Override

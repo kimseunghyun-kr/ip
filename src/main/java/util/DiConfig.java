@@ -22,8 +22,8 @@ import repository.ITaskRepository;
 import repository.entitymanager.BabyEntityManager;
 import repository.entitymanager.TaskFlusher;
 import repository.event.TaskEventLogger;
-import service.ActionHandler;
 import runtime.IBotRunTime;
+import service.ActionHandler;
 import service.ITaskService;
 import service.TaskRepositoryCoordinatorService;
 

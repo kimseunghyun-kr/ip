@@ -1,20 +1,22 @@
 package service;
 
-import controller.ITaskController;
-import entity.MockTaskController;
-import entity.tasks.Task;
-import mocks.MockTaskCoordinatorRepositoryService;
-import mocks.MockTaskRepository;
-import repository.ITaskRepository;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
+import controller.ITaskController;
+import entity.MockTaskController;
+import entity.tasks.Task;
+import mocks.MockTaskCoordinatorRepositoryService;
+import mocks.MockTaskRepository;
 
 public class TaskServiceTest {
     private ITaskController taskController;

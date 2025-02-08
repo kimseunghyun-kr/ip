@@ -17,6 +17,7 @@ public class CommandDao {
     public ControllerResponse execute() {
         return command.execute(params);
     }
+
     public Command getCommand() {
         return command;
     }
