@@ -13,10 +13,17 @@ import java.util.stream.Collectors;
 
 import entity.tasks.Task;
 
+/**
+ * Utility class for file-related operations such as reading lines and tasks.
+ */
 public class DataFileUtils {
 
     /**
      * Reads a file and returns a list of trimmed, non-empty lines.
+     *
+     * @param filePath The path to the file to be read.
+     * @return A list of trimmed, non-empty lines.
+     * @throws IOException If an I/O error occurs while reading the file.
      */
     public static List<String> readNonEmptyLines(Path filePath) throws IOException {
         if (!Files.exists(filePath)) {
@@ -32,7 +39,11 @@ public class DataFileUtils {
     }
 
     /**
-     * Reads tasks from a file and returns a Map of tasks by their UUID.
+     * Reads tasks from a file and returns a map of tasks identified by their UUID.
+     *
+     * @param filePath The path to the file containing task data.
+     * @return A map where the key is the UUID and the value is the corresponding Task.
+     * @throws IOException If an I/O error occurs or the file format is invalid.
      */
     public static Map<UUID, Task> readTasksFromFile(Path filePath) throws IOException {
         List<String> lines = readNonEmptyLines(filePath);

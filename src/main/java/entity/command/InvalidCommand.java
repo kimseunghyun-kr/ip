@@ -12,15 +12,15 @@ import controller.ITaskController;
  */
 public class InvalidCommand implements Command {
     // Predefined sentinel responses
-    public static final ControllerResponse INVALID_COMMAND =
-            new ControllerResponse("INVALID command. No operation performed.", "ERROR");
+    public static final ControllerResponse<String> INVALID_COMMAND =
+            new ControllerResponse<>("INVALID command. No operation performed.", "ERROR");
 
     @Override
     public void setTaskController(ITaskController taskController) {
     }
 
     @Override
-    public ControllerResponse execute(List<String> parameters) {
+    public ControllerResponse<String> execute(List<String> parameters) {
         return INVALID_COMMAND;
     }
 }

@@ -21,6 +21,12 @@ public class TaskController implements ITaskController {
     private final ITaskService taskService;
     private final TaskRepositoryCoordinatorService taskRepositoryCoordinatorService;
 
+    /**
+     * Constructs a {@code TaskController} with the specified services.
+     *
+     * @param taskService                     The service responsible for task operations.
+     * @param taskRepositoryCoordinatorService The service managing coordination between repositories.
+     */
     public TaskController(ITaskService taskService, TaskRepositoryCoordinatorService taskRepositoryCoordinatorService) {
         this.taskService = taskService;
         this.taskRepositoryCoordinatorService = taskRepositoryCoordinatorService;

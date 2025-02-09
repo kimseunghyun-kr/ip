@@ -14,21 +14,35 @@ import entity.tasks.Events;
 import entity.tasks.Task;
 import exceptions.UserFacingException;
 
+/**
+ * In-memory repository for managing tasks.
+ * <p>
+ * This repository provides storage and lookup functionality for tasks,
+ * supporting both list-based and map-based storage mechanisms.
+ * </p>
+ */
 public class TaskRepository implements ITaskRepository {
+
+    /**
+     * List-based storage for tasks, maintaining insertion order.
+     */
     protected final List<Task> storageList = new ArrayList<>();
-    protected final Map<UUID, Task> storageMap = new LinkedHashMap<>(); // Fast lookup by UUID
+
+    /**
+     * Map-based storage for fast lookup of tasks by their UUID.
+     */
+    protected final Map<UUID, Task> storageMap = new LinkedHashMap<>();
 
     @Override
     public Task save(Task input) {
         if (storageMap.containsKey(input.getId())) {
             storageList.replaceAll(task -> task.getId().equals(input.getId()) ? input : task);
             storageMap.replace(input.getId(), input);
-            return input;
         } else {
             storageList.add(input); // Maintain order
             storageMap.put(input.getId(), input); // Fast UUID lookup
-            return input;
         }
+        return input;
     }
 
     @Override

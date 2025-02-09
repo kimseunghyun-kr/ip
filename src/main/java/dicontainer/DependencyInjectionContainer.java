@@ -66,7 +66,7 @@ public class DependencyInjectionContainer {
     /**
      * Indicates whether the container has been initialized.
      */
-    private boolean initialized = false;
+    private boolean isInitialized = false;
 
 
     // ========== Registration Methods ==========
@@ -150,18 +150,7 @@ public class DependencyInjectionContainer {
                 } else {
                     // multiple possible impls => pick one, or fail
                     // For simplicity, pick the first that might have @ProxyEnabled
-                    Class<?> primary = null;
-                    for (Class<?> c : impls) {
-                        if (c.isAnnotationPresent(ProxyEnabled.class)) {
-                            primary = c;
-                            break;
-                        }
-                    }
-                    if (primary == null) {
-                        throw new RuntimeException(
-                                "Multiple implementations found for " + type.getName()
-                                        + " and none is @ProxyEnabled to pick as primary");
-                    }
+                    Class<?> primary = getConcreteClass(type, impls);
                     registrations.put(type, primary);
                     checkIfProxyEnabled(primary);
                 }
@@ -171,6 +160,22 @@ public class DependencyInjectionContainer {
             registrations.put(type, type);
             checkIfProxyEnabled(type);
         }
+    }
+
+    private static Class<?> getConcreteClass(Class<?> type, Set<Class<?>> impls) {
+        Class<?> primary = null;
+        for (Class<?> c : impls) {
+            if (c.isAnnotationPresent(ProxyEnabled.class)) {
+                primary = c;
+                break;
+            }
+        }
+        if (primary == null) {
+            throw new RuntimeException(
+                    "Multiple implementations found for " + type.getName()
+                            + " and none is @ProxyEnabled to pick as primary");
+        }
+        return primary;
     }
 
     /**
@@ -316,7 +321,7 @@ public class DependencyInjectionContainer {
      * Perform a topological sort of the entire dependency graph, then instantiate each in order.
      */
     public void initialize() {
-        if (initialized) {
+        if (isInitialized) {
             return;
         }
         // Build the graph for all registrations:
@@ -355,7 +360,7 @@ public class DependencyInjectionContainer {
             }
         }
 
-        initialized = true;
+        isInitialized = true;
     }
 
     /**
@@ -575,7 +580,7 @@ public class DependencyInjectionContainer {
      * @return The resolved instance.
      */
     public <T> T resolve(Class<T> type) {
-        if (!initialized) {
+        if (!isInitialized) {
             throw new IllegalStateException("Container not initialized yet");
         }
         if (!instances.containsKey(type)) {

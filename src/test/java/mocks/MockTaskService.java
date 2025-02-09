@@ -6,6 +6,7 @@ import java.util.List;
 import entity.TaskType;
 import entity.tasks.Task;
 import service.ITaskService;
+import service.dao.TaskUpdateDao;
 
 
 public class MockTaskService implements ITaskService {
@@ -42,11 +43,21 @@ public class MockTaskService implements ITaskService {
 
     @Override
     public int searchOrder(String uuid) {
-        return null;
+        return 0;
     }
 
     @Override
     public List<Task> searchByKeyword(String keyword) {
         return List.of();
+    }
+
+    @Override
+    public List<Task> deleteAll() {
+        return List.of();
+    }
+
+    @Override
+    public Task updateTask(int idx, TaskUpdateDao taskUpdateDao) {
+        return null;
     }
 }
