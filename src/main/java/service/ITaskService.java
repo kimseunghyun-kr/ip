@@ -8,6 +8,7 @@ import dicontainer.aopinterfaces.annotationinterfaces.ExceptionHandler;
 import dicontainer.aopinterfaces.annotationinterfaces.ProxyEnabled;
 import entity.TaskType;
 import entity.tasks.Task;
+import service.dao.TaskUpdateDao;
 
 
 /**
@@ -98,4 +99,7 @@ public interface ITaskService extends Proxiable {
      */
     @ExceptionHandler
     List<Task> deleteAll();
+
+    @ExceptionHandler
+    Task updateTask(int idx, TaskUpdateDao taskUpdateDao);
 }

@@ -60,16 +60,21 @@ public class FileBackedTaskRepository extends TaskRepository implements IFileBac
     }
 
     /**
-     * Saves a task and marks it as modified.
+     * Saves or updates a task and marks it as modified.
      *
      * @param entity The task to save.
      * @return The saved task.
      */
     @Override
     public Task save(Task entity) {
+        boolean existingTask = this.storageMap.containsKey(entity.getId());
         Task result = super.save(entity);
         dirtySet.add(result.getId());
-        TaskEventObject.getInstance().dispatch(new TaskEvent(TaskEvent.EventType.ADD, result));
+        if (existingTask) {
+            this.markDirty(entity.getId());
+        } else {
+            TaskEventObject.getInstance().dispatch(new TaskEvent(TaskEvent.EventType.ADD, result));
+        }
         return result;
     }
 

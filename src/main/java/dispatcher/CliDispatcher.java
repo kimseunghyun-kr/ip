@@ -6,11 +6,8 @@ import static util.ChatBotUtil.linesep;
 
 import java.util.Scanner;
 
-import controller.ControllerResponse;
-import entity.command.TerminationCommand;
 import exceptions.UserFacingException;
-import service.ActionHandler;
-import service.CommandDao;
+import service.CommandExecutionService;
 
 public class CliDispatcher implements IDispatcher {
     /**
@@ -20,10 +17,11 @@ public class CliDispatcher implements IDispatcher {
     /**
      * Handles action resolution and command execution.
      */
-    private final ActionHandler actionHandler;
+    private final CommandExecutionService commandExecutionService;
 
-    public CliDispatcher(ActionHandler actionHandler) {
-        this.actionHandler = actionHandler;
+
+    public CliDispatcher(CommandExecutionService commandExecutionService) {
+        this.commandExecutionService = commandExecutionService;
     }
 
     @Override
@@ -35,12 +33,11 @@ public class CliDispatcher implements IDispatcher {
                 linesep();
                 String input = scanner.nextLine();
                 linesep();
-                CommandDao command = actionHandler.resolveAction(input);
-                ControllerResponse response = command.execute();
-                System.out.println(response);
-                if (command.getCommand() instanceof TerminationCommand) {
+                String response = commandExecutionService.runCommand(input);
+                if (response.equals(CommandExecutionService.TERMSIG)) {
                     break;
                 }
+                System.out.println(response);
             } catch (UserFacingException e) {
                 System.out.println("outermost loop catch :: " + e.getMessage());
             }

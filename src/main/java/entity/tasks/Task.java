@@ -1,11 +1,19 @@
 package entity.tasks;
 
-
 import java.util.Objects;
 import java.util.UUID;
 
-public class Task {
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
+@Data
+@SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
+public class Task {
     private UUID id;
 
     private String name;
@@ -14,6 +22,12 @@ public class Task {
 
     public Task(String name) {
         this.id = UUID.randomUUID();
+        this.name = name;
+        this.isCompleted = false;
+    }
+
+    public Task(UUID id, String name) {
+        this.id = id;
         this.name = name;
         this.isCompleted = false;
     }
@@ -42,18 +56,6 @@ public class Task {
         return builder.toString();
     }
 
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
     public Boolean getCompleted() {
         return isCompleted;
     }
@@ -64,7 +66,9 @@ public class Task {
 
     @Override
     public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         Task task = (Task) o;
         return Objects.equals(id, task.id) && Objects.equals(name, task.name) && Objects.equals(isCompleted, task.isCompleted);
     }

@@ -2,25 +2,20 @@ package gui;
 
 import java.io.IOException;
 
+import controller.ITaskController;
 import gui.components.MainWindow;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
-import service.ActionHandler;
+import service.CommandExecutionService;
 
 
 /**
  * launcher class for the GUI javafx application
  */
 public class JavaFxLauncher extends Application {
-    private static ActionHandler staticActionHandler;
-
-    // For convenience, expose static setters:
-    public static void setActionHandler(ActionHandler handler) {
-        staticActionHandler = handler;
-    }
 
     @Override
     public void start(Stage stage) {
@@ -36,7 +31,6 @@ public class JavaFxLauncher extends Application {
             // Window formatting
             stage.setTitle("Task Manager"); // Set the title of the application
             stage.setResizable(true);
-            fxmlLoader.<MainWindow>getController().setActionHandler(staticActionHandler);
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();

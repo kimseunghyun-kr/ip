@@ -1,7 +1,8 @@
 package gui.components;
 
-import controller.ControllerResponse;
-import entity.command.TerminationCommand;
+import static service.CommandExecutionService.TERMSIG;
+
+import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -10,13 +11,17 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
-import service.ActionHandler;
-import service.CommandDao;
+import javafx.util.Duration;
+import lombok.Setter;
+import service.CommandExecutionService;
 
 /**
  * Controller for MainWindow. Provides the layout for the other controls.
  */
 public class MainWindow extends AnchorPane {
+    public static final String EXITMSG = "Bye Bye see you next time";
+    @Setter
+    private static CommandExecutionService commandExecutionService;
     private final Image userImage = new Image(this.getClass().getResourceAsStream("/images/verstappen.jpg"));
     private final Image dukeImage = new Image(this.getClass().getResourceAsStream("/images/amiya.png"));
     @FXML
@@ -27,8 +32,6 @@ public class MainWindow extends AnchorPane {
     private TextField userInput;
     @FXML
     private Button sendButton;
-    private ActionHandler actionHandler;
-
     /**
      * initialises the javafx application
      */
@@ -38,11 +41,6 @@ public class MainWindow extends AnchorPane {
         dialogContainer.prefHeightProperty().bind(scrollPane.heightProperty());
         scrollPane.vvalueProperty().bind(dialogContainer.heightProperty());
         begin();
-    }
-
-    public void setActionHandler(ActionHandler actionHandler) {
-        this.actionHandler = actionHandler;
-
     }
 
     private void begin() {
@@ -68,12 +66,13 @@ public class MainWindow extends AnchorPane {
     }
 
     public String getResponse(String input) {
-        CommandDao commandObject = actionHandler.resolveAction(input);
-        ControllerResponse response = commandObject.execute();
-        if (commandObject.getCommand() instanceof TerminationCommand) {
-            DialogBox.getDialogBox(response.toString(), dukeImage);
-            Platform.exit();
+        String output = commandExecutionService.runCommand(input);
+        if (output.equals(TERMSIG)) {
+            PauseTransition pause = new PauseTransition(Duration.seconds(2));
+            pause.setOnFinished(e -> Platform.exit());
+            pause.play();
+            return EXITMSG;
         }
-        return response.toString();
+        return output;
     }
 }
