@@ -1,11 +1,13 @@
 package controller;
 
-public class ControllerResponse {
+import lombok.Data;
 
+@Data
+public class ControllerResponse<T> {
     private final String message;
-    private final Object data;
+    private final T data;
 
-    public ControllerResponse(String message, Object data) {
+    public ControllerResponse(String message, T data) {
         this.message = message;
         this.data = data;
     }
@@ -13,10 +15,6 @@ public class ControllerResponse {
     public ControllerResponse(String message) {
         this.message = message;
         this.data = null;
-    }
-
-    public String getMessage() {
-        return message;
     }
 
     public Object getData() {

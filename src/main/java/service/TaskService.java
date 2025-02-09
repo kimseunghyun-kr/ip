@@ -9,6 +9,7 @@ import entity.tasks.Task;
 import entity.tasks.TaskFactory;
 import exceptions.UserFacingException;
 import repository.ITaskRepository;
+import service.dao.TaskUpdateDao;
 
 /**
  * Implements {@link ITaskService} to provide task management operations.
@@ -86,6 +87,11 @@ public class TaskService implements ITaskService {
     @Override
     public List<Task> deleteAll() {
         return taskRepository.deleteAll();
+    }
+
+    @Override
+    public Task updateTask(int idx, TaskUpdateDao taskUpdateDao) {
+        return taskRepositoryCoordinatorService.updateTask(idx, taskUpdateDao);
     }
 
     @Override

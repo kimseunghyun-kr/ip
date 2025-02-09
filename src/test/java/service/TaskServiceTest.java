@@ -40,7 +40,7 @@ public class TaskServiceTest {
 
         // WHEN
         taskService.addTask(new ArrayList<>(List.of("TODO", "Task")));
-        String tasks = taskController.getAllTasks();
+        String tasks = taskController.getAllTasks().getMessage();
 
         // THEN
         assertNotNull(tasks);
@@ -53,7 +53,7 @@ public class TaskServiceTest {
     void testDeleteTask() {
         // GIVEN
         taskService.addTask(new ArrayList<>(List.of("TODO", "Task")));
-        String tasks = taskController.getAllTasks();
+        String tasks = taskController.getAllTasks().getMessage();
 
         // WHEN
         taskService.deleteTask(1);
@@ -72,7 +72,7 @@ public class TaskServiceTest {
         mockTaskRepository.save(task2);
 
         // WHEN
-        String results = taskController.searchByKeyword("Important");
+        String results = taskController.searchByKeyword("Important").getMessage();
 
         // THEN
         assertTrue(results.contains(task1.toString()));
@@ -88,7 +88,7 @@ public class TaskServiceTest {
         mockTaskRepository.save(task2);
 
         // WHEN
-        String tasks = taskController.getAllTasks();
+        String tasks = taskController.getAllTasks().getMessage();
 
         // THEN
         assertTrue(tasks.contains(task1.toString()));

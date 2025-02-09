@@ -36,13 +36,14 @@ public class TaskDeserializer {
      * </ul>
      *
      * @param line The serialized task string.
-     * @return A {@link Task} object if the string is valid; otherwise, {@code null}.
+     * @return A {@link Task} object if the string is valid; otherwise, throws an exception.
+     * @throws IllegalArgumentException If the input format is invalid.
      */
     public static Task deserializeTask(String line) {
         String[] parts = line.split("\\|");
         if (parts.length < 4) {
-            return null;
-        } // Invalid format
+            throw new IllegalArgumentException("Invalid task format: " + line);
+        }
 
         try {
             UUID id = UUID.fromString(parts[0]); // Extract UUID
@@ -50,41 +51,29 @@ public class TaskDeserializer {
             boolean isCompleted = parts[2].equals("1");
             String name = parts[3];
 
-            Task task;
-
-            switch (type) {
-            case "T":
-                task = new ToDo(name);
-                break;
-
-            case "D":
+            return switch (type) {
+            case "T" -> ToDo.builder().id(id).name(name).isCompleted(isCompleted).build();
+            case "D" -> {
                 if (parts.length < 5) {
-                    return null;
+                    throw new IllegalArgumentException("Deadline task missing dueBy timestamp: " + line);
                 }
                 LocalDateTime dueBy = LocalDateTime.parse(parts[4]);
-                task = new DeadLine(name, dueBy);
-                break;
-
-            case "E":
+                yield DeadLine.builder().id(id).name(name).dueby(dueBy).isCompleted(isCompleted).build();
+            }
+            case "E" -> {
                 if (parts.length < 6) {
-                    return null;
+                    throw new IllegalArgumentException("Event task missing startAt or endBy timestamps: " + line);
                 }
                 LocalDateTime startAt = LocalDateTime.parse(parts[4]);
                 LocalDateTime endBy = LocalDateTime.parse(parts[5]);
-                task = new Events(name, startAt, endBy);
-                break;
-
-            default:
-                return null; // Unknown task type
+                yield Events.builder().id(id).name(name).startat(startAt).endby(endBy)
+                        .isCompleted(isCompleted).build();
             }
-
-            task.setCompleted(isCompleted);
-            task.setId(id); // Assign UUID from file
-            return task;
+            default -> throw new IllegalArgumentException("Unknown task type: " + type);
+            };
 
         } catch (Exception e) {
-            System.err.println("Error parsing task: " + line);
-            return null; // Invalid format
+            throw new IllegalArgumentException("Error parsing task: " + line, e);
         }
     }
 }

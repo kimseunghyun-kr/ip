@@ -20,13 +20,15 @@ public class TaskRepository implements ITaskRepository {
 
     @Override
     public Task save(Task input) {
-        if (input.getId() == null) {
-            input = new Task(input.getName()); // Ensure Task has UUID
+        if (storageMap.containsKey(input.getId())) {
+            storageList.replaceAll(task -> task.getId().equals(input.getId()) ? input : task);
+            storageMap.replace(input.getId(), input);
+            return input;
+        } else {
+            storageList.add(input); // Maintain order
+            storageMap.put(input.getId(), input); // Fast UUID lookup
+            return input;
         }
-
-        storageList.add(input); // Maintain order
-        storageMap.put(input.getId(), input); // Fast UUID lookup
-        return input;
     }
 
     @Override

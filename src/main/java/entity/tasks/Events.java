@@ -2,7 +2,12 @@ package entity.tasks;
 
 import java.time.LocalDateTime;
 
+import lombok.Data;
+import lombok.experimental.SuperBuilder;
 
+
+@Data
+@SuperBuilder
 public class Events extends Task {
 
     private final LocalDateTime startat;
