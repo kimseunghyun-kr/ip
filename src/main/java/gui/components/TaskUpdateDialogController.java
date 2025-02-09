@@ -153,7 +153,7 @@ public class TaskUpdateDialogController {
     private String getUpdatedTaskType() {
         String selectedType = taskTypeComboBox.getValue();
         String currentType = getTaskType(originalTask).name();
-        return !Objects.equals(selectedType, currentType) ? selectedType : null;
+        return !Objects.equals(selectedType, currentType) ? selectedType : currentType;
     }
 
     /**
