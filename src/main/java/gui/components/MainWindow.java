@@ -2,6 +2,7 @@ package gui.components;
 
 import static service.CommandExecutionService.TERMSIG;
 
+import exceptions.UserFacingException;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -66,13 +67,17 @@ public class MainWindow extends AnchorPane {
     }
 
     public String getResponse(String input) {
-        String output = commandExecutionService.runCommand(input);
-        if (output.equals(TERMSIG)) {
-            PauseTransition pause = new PauseTransition(Duration.seconds(2));
-            pause.setOnFinished(e -> Platform.exit());
-            pause.play();
-            return EXITMSG;
+        try {
+            String output = commandExecutionService.runCommand(input);
+            if (output.equals(TERMSIG)) {
+                PauseTransition pause = new PauseTransition(Duration.seconds(2));
+                pause.setOnFinished(e -> Platform.exit());
+                pause.play();
+                return EXITMSG;
+            }
+            return output;
+        } catch (UserFacingException | NullPointerException e) {
+            return e.getMessage();
         }
-        return output;
     }
 }

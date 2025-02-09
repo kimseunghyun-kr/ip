@@ -3,6 +3,7 @@ import java.time.LocalDateTime;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import lombok.experimental.SuperBuilder;
 
 
@@ -10,7 +11,7 @@ import lombok.experimental.SuperBuilder;
 @EqualsAndHashCode(callSuper = true)
 @SuperBuilder
 public class DeadLine extends Task {
-
+    @NonNull
     private final LocalDateTime dueby;
 
     public DeadLine(String name, LocalDateTime dueby) {

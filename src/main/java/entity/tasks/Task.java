@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import lombok.experimental.SuperBuilder;
 
 @Data
@@ -14,10 +15,11 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Task {
+    @NonNull
     private UUID id;
-
+    @NonNull
     private String name;
-
+    @NonNull
     private Boolean isCompleted;
 
     public Task(String name) {

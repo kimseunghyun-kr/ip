@@ -4,8 +4,10 @@ import java.util.List;
 
 import controller.ControllerResponse;
 import controller.ITaskController;
+import entity.TaskType;
 import entity.tasks.Task;
 import exceptions.UserFacingException;
+import lombok.NonNull;
 import service.dao.TaskUpdateDao;
 import util.DateTimeUtils;
 
@@ -18,7 +20,7 @@ public class UpdateCommand implements Command {
     }
 
     @Override
-    public ControllerResponse<Task> execute(List<String> parameters) {
+    public ControllerResponse<Task> execute(@NonNull List<String> parameters) {
         if (parameters.isEmpty()) {
             throw new UserFacingException("Which task are you planning to update?");
         }
@@ -38,7 +40,7 @@ public class UpdateCommand implements Command {
         return taskController.updateTask(taskId, updateDao);
     }
 
-    private TaskUpdateDao parseParameters(List<String> parameters) {
+    private TaskUpdateDao parseParameters(@NonNull List<String> parameters) {
         parameters.remove(0);
         TaskUpdateDao.TaskUpdateDaoBuilder builder = TaskUpdateDao.builder();
 
@@ -59,23 +61,23 @@ public class UpdateCommand implements Command {
         return builder.build();
     }
 
-    private boolean isTaskTypeChanging(Task existingTask, TaskUpdateDao updateDao) {
+    private boolean isTaskTypeChanging(@NonNull Task existingTask, @NonNull TaskUpdateDao updateDao) {
         return updateDao.getTaskType() != null
                 && !existingTask.getClass().getSimpleName().equalsIgnoreCase(updateDao.getTaskType());
     }
     private void validateNewTaskData(TaskUpdateDao updateDao) {
-        switch (updateDao.getTaskType()) {
-        case "Event" -> {
+        switch (TaskType.valueOf(updateDao.getTaskType().toUpperCase())) {
+        case EVENT -> {
             if (updateDao.getName() == null || updateDao.getStartDate() == null || updateDao.getEndDate() == null) {
                 throw new UserFacingException("Event requires name, start date, and end date");
             }
         }
-        case "Deadline" -> {
+        case DEADLINE -> {
             if (updateDao.getName() == null || updateDao.getDueDate() == null) {
                 throw new UserFacingException("Deadline requires name and due date");
             }
         }
-        case "ToDo" -> {
+        case TODO -> {
             if (updateDao.getName() == null) {
                 throw new UserFacingException("ToDo requires a name");
             }

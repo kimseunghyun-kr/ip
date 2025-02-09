@@ -6,10 +6,11 @@ import java.util.List;
 
 import entity.TaskType;
 import exceptions.UserFacingException;
+import lombok.NonNull;
 
 
 public class TaskFactory {
-    public static Task createTask(TaskType type, List<String> parameters) {
+    public static Task createTask(@NonNull TaskType type, List<String> parameters) {
         return switch (type) {
         case TODO -> {
             if (parameters.size() != 1) {
