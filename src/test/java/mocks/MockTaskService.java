@@ -8,7 +8,6 @@ import entity.tasks.Task;
 import service.ITaskService;
 
 
-
 public class MockTaskService implements ITaskService {
 
     @Override

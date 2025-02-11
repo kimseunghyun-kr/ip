@@ -6,15 +6,15 @@ import exceptions.UserFacingException;
 import repository.entitymanager.TaskFlusher;
 
 
-
-
 /**
  * Implements {@link IBotRunTime} to manage the chatbot runtime execution.
  * This class handles user input, resolves actions, and manages the chatbot lifecycle.
  */
 public class BotRunTime implements IBotRunTime {
 
-    /** Manages task persistence and flushing operations. */
+    /**
+     * Manages task persistence and flushing operations.
+     */
     private final TaskFlusher taskFlusher;
 
     private final IDispatcher dispatcher;
@@ -22,7 +22,7 @@ public class BotRunTime implements IBotRunTime {
     /**
      * Constructs a {@code BotRunTime} with required dependencies.
      *
-     * @param dispatcher The controller responsible for receiving and resolving user actions.
+     * @param dispatcher  The controller responsible for receiving and resolving user actions.
      * @param taskFlusher The service responsible for managing task persistence.
      */
     public BotRunTime(TaskFlusher taskFlusher, IDispatcher dispatcher) {

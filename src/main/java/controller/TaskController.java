@@ -11,7 +11,6 @@ import exceptions.UserFacingException;
 import service.ITaskService;
 
 
-
 /**
  * TaskController formats responses for user interaction.
  * Handles communication between user input (CLI/GUI) and TaskService.
@@ -22,31 +21,37 @@ public class TaskController implements ITaskController {
     public TaskController(ITaskService taskService) {
         this.taskService = taskService;
     }
+
     @Override
     public ControllerResponse markDone(int index) {
         Task updatedTask = taskService.markDone(index);
         return new ControllerResponse("Task marked as done: \n " + updatedTask);
     }
+
     @Override
     public ControllerResponse markUndone(int index) {
         Task updatedTask = taskService.markUndone(index);
         return new ControllerResponse("Task marked as undone: \n " + updatedTask);
     }
+
     @Override
     public ControllerResponse getAllTasks() {
         List<Task> tasks = taskService.getAllTasks();
         return formatTaskList(tasks);
     }
+
     @Override
     public ControllerResponse addTask(List<String> taskParams) {
         Task newTask = taskService.addTask(taskParams);
         return new ControllerResponse("Task added successfully:\n" + newTask);
     }
+
     @Override
     public ControllerResponse deleteTask(int taskId) {
         Task deletedTask = taskService.deleteTask(taskId);
         return new ControllerResponse("Deleted task:\n" + deletedTask);
     }
+
     @Override
     public ControllerResponse searchOrder(String uuidStr) {
         try {
@@ -56,16 +61,19 @@ public class TaskController implements ITaskController {
             return new ControllerResponse(e.getMessage());
         }
     }
+
     @Override
     public ControllerResponse searchByKeyword(String keyword) {
         List<Task> tasks = taskService.searchByKeyword(keyword);
-        return new ControllerResponse("Tasks containing '" + keyword + "':\n" , formatTaskList(tasks));
+        return new ControllerResponse("Tasks containing '" + keyword + "':\n", formatTaskList(tasks));
     }
+
     @Override
     public ControllerResponse searchByDate(TaskType type, LocalDateTime from, LocalDateTime to) {
         List<Task> tasks = taskService.searchByDate(type, from, to);
-        return new ControllerResponse("Tasks from " + from + " to " + to + ":\n" , formatTaskList(tasks));
+        return new ControllerResponse("Tasks from " + from + " to " + to + ":\n", formatTaskList(tasks));
     }
+
     @Override
     public ControllerResponse deleteAll() {
         List<Task> deletedTasks = taskService.deleteAll();

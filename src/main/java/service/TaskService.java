@@ -1,24 +1,28 @@
 package service;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
+
 import entity.TaskType;
 import entity.tasks.Task;
 import entity.tasks.TaskFactory;
 import exceptions.UserFacingException;
 import repository.ITaskRepository;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
-
 /**
  * Implements {@link ITaskService} to provide task management operations.
  * This service interacts with the {@link ITaskRepository} to perform CRUD operations.
  */
 public class TaskService implements ITaskService {
-    /** Service responsible for coordinating repository interactions. */
+    /**
+     * Service responsible for coordinating repository interactions.
+     */
     private final TaskRepositoryCoordinatorService taskRepositoryCoordinatorService;
 
-    /** The repository for storing and retrieving tasks. */
+    /**
+     * The repository for storing and retrieving tasks.
+     */
     private final ITaskRepository taskRepository;
 
     public TaskService(TaskRepositoryCoordinatorService taskRepositoryCoordinatorService, ITaskRepository taskRepository) {

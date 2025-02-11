@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 
 public class DeadLine extends Task {
 
-    private LocalDateTime dueby;
+    private final LocalDateTime dueby;
 
     public DeadLine(String name, LocalDateTime dueby) {
         super(name);
@@ -28,6 +28,7 @@ public class DeadLine extends Task {
         builder.append(super.getId());
         return builder.toString();
     }
+
     public LocalDateTime getDueby() {
         return dueby;
     }

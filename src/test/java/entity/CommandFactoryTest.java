@@ -1,14 +1,20 @@
 package entity;
 
-import controller.ITaskController;
-import entity.command.*;
-import mocks.MockTaskService;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.DisplayName;
-import service.ITaskService;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+import controller.ITaskController;
+import entity.command.AddCommand;
+import entity.command.Command;
+import entity.command.CommandFactory;
+import entity.command.DeleteCommand;
+import entity.command.ListCommand;
 
 /**
  * Unit tests for {@link CommandFactory} using JUnit 5.
@@ -36,7 +42,7 @@ public class CommandFactoryTest {
 
         // THEN
         assertNotNull(command);
-        assertTrue(command instanceof AddCommand);
+        assertInstanceOf(AddCommand.class, command);
     }
 
     @Test
@@ -46,7 +52,7 @@ public class CommandFactoryTest {
         String commandString = "add";
 
         // WHEN
-        assertThrows(RuntimeException.class, ()->commandFactory.createCommand(Actions.valueOf(commandString)));
+        assertThrows(RuntimeException.class, () -> commandFactory.createCommand(Actions.valueOf(commandString)));
 
         // THEN
 
@@ -60,7 +66,7 @@ public class CommandFactoryTest {
         String commandString = "unknown";
 
         // WHEN
-        assertThrows(RuntimeException.class, ()->commandFactory.createCommand(Actions.valueOf(commandString)));
+        assertThrows(RuntimeException.class, () -> commandFactory.createCommand(Actions.valueOf(commandString)));
 
     }
 
@@ -75,7 +81,7 @@ public class CommandFactoryTest {
 
         // THEN
         assertNotNull(command);
-        assertTrue(command instanceof DeleteCommand);
+        assertInstanceOf(DeleteCommand.class, command);
     }
 
     @Test
@@ -89,6 +95,6 @@ public class CommandFactoryTest {
 
         // THEN
         assertNotNull(command);
-        assertTrue(command instanceof ListCommand);
+        assertInstanceOf(ListCommand.class, command);
     }
 }

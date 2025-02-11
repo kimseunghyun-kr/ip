@@ -28,8 +28,9 @@ public class DialogBox extends HBox {
 
     /**
      * creates a DialogBox object to stage dialogues
+     *
      * @param text text to be shown in the box
-     * @param img image to be shown in the box
+     * @param img  image to be shown in the box
      */
     public DialogBox(String text, Image img) {
         try {
@@ -50,15 +51,6 @@ public class DialogBox extends HBox {
         String[] lines = str.split("\r\n|\r|\n");
         return lines.length;
     }
-    /**
-     * Flips the dialog box such that the ImageView is on the left and text on the right.
-     */
-    private void flip() {
-        ObservableList<Node> tmp = FXCollections.observableArrayList(this.getChildren());
-        Collections.reverse(tmp);
-        getChildren().setAll(tmp);
-        setAlignment(Pos.TOP_LEFT);
-    }
 
     public static DialogBox getUserDialog(String text, Image img) {
         return new DialogBox(text, img);
@@ -68,5 +60,15 @@ public class DialogBox extends HBox {
         var db = new DialogBox(text, img);
         db.flip();
         return db;
+    }
+
+    /**
+     * Flips the dialog box such that the ImageView is on the left and text on the right.
+     */
+    private void flip() {
+        ObservableList<Node> tmp = FXCollections.observableArrayList(this.getChildren());
+        Collections.reverse(tmp);
+        getChildren().setAll(tmp);
+        setAlignment(Pos.TOP_LEFT);
     }
 }

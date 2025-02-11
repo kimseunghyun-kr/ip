@@ -22,7 +22,6 @@ import util.TaskDeserializer;
 import util.TaskSerializer;
 
 
-
 public class TaskEventLogger {
     private static final String TEMP_LOG_FILE_SUFFIX = ".tmp";
     private final Path logFilePath;
@@ -116,7 +115,6 @@ public class TaskEventLogger {
             System.err.println("Error replacing original file with updated file: " + e.getMessage());
         }
     }
-
 
 
     /**
