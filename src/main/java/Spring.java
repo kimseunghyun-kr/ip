@@ -1,4 +1,4 @@
-import static util.DiConfig.registerConfig;
+import static util.config.DiConfig.registerConfig;
 
 import java.nio.file.Path;
 
@@ -6,6 +6,7 @@ import dicontainer.DependencyInjectionContainer;
 import dispatcher.GuiDispatcher;
 import runtime.IBotRunTime;
 import util.DirectoryInitializeUtils;
+import util.config.FxmlStaticSetterInjectionConfig;
 
 
 /**
@@ -38,14 +39,12 @@ public class Spring {
 
         // Register configurations in the DI container
         registerConfig(container, logDirectoryPath, dataDirectoryPath, false);
-
         // Pre-initialize all dependencies
         container.initialize();
-
         // Start the GUI runtime
         IBotRunTime botRuntime = container.resolve(IBotRunTime.class);
-        GuiDispatcher guiDispatcher = container.resolve(GuiDispatcher.class);
-        guiDispatcher.setArgs(args);
+        FxmlStaticSetterInjectionConfig fxmlConfig = container.resolve(FxmlStaticSetterInjectionConfig.class);
+        fxmlConfig.injectSetter();
         botRuntime.run();
     }
 

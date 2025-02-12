@@ -9,7 +9,8 @@ public enum Actions {
     DELETE,
     SEARCH,
     INVALID,
-    CLEAR;
+    CLEAR,
+    UPDATE;
 
     public static Actions fromString(String command) {
         try {

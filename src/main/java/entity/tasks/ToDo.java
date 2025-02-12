@@ -1,10 +1,17 @@
 package entity.tasks;
 
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.SuperBuilder;
+
+@Data
+@EqualsAndHashCode(callSuper = true)
+@SuperBuilder
 public class ToDo extends Task {
     public ToDo(String name) {
         super(name);
     }
-
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
