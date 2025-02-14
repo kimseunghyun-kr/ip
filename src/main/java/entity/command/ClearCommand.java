@@ -5,6 +5,9 @@ import java.util.List;
 import controller.ControllerResponse;
 import controller.ITaskController;
 
+/**
+ * Command to clear all tasks.
+ */
 public class ClearCommand implements Command {
     /**
      * The task service used to manage tasks.
@@ -22,7 +25,7 @@ public class ClearCommand implements Command {
     }
 
     @Override
-    public ControllerResponse execute(List<String> parameters) {
+    public ControllerResponse<?> execute(List<String> parameters) {
         return taskController.deleteAll();
     }
 }

@@ -114,7 +114,9 @@ public class FileBackedTaskRepository extends TaskRepository implements IFileBac
      */
     @Override
     public void flush() {
-        if (dirtySet.isEmpty()) return;
+        if (dirtySet.isEmpty()) {
+            return;
+        }
 
         System.out.println("Flushing modified tasks to file...");
 
@@ -127,10 +129,10 @@ public class FileBackedTaskRepository extends TaskRepository implements IFileBac
         // Step 3: Compare the expected state with the current in-memory state
         if (expectedListHash == snapshotHashBeforeFlush) {
             System.out.println("Log replay is valid. Applying logs.");
-            eventLogger.replayLog(filePath);  // Step 4: Apply logs if valid
+            eventLogger.replayLog(filePath); // Step 4: Apply logs if valid
         } else {
             System.err.println("Flush detected a drift! Falling back to full persistAll.");
-            persistAll();  // Step 5: Full write to fix inconsistencies
+            persistAll(); // Step 5: Full write to fix inconsistencies
             eventLogger.clearLog();
         }
 
@@ -155,14 +157,17 @@ public class FileBackedTaskRepository extends TaskRepository implements IFileBac
      * Maintains JSON formatting and ensures atomic writes.
      */
     private void persistAll() {
-        if (dirtySet.isEmpty()) return; // No changes, no need to persist
+        if (dirtySet.isEmpty()) {
+            return; // No changes, no need to persist
+        }
 
         try {
             backupCurrentFileIfExists(); // Backup before overwriting
 
             Path tempFile = filePath.resolveSibling(filePath.getFileName() + ".tmp");
 
-            try (BufferedWriter writer = Files.newBufferedWriter(tempFile, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
+            try (BufferedWriter writer = Files.newBufferedWriter(tempFile,
+                    StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
                 writer.write("[\n");
 
                 int size = storageList.size();

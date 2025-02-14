@@ -10,6 +10,8 @@ import repository.ITaskRepository;
  * A toy "EntityManager" that simulates
  * transaction boundaries around a repository.
  */
+@SuppressWarnings("ALL")
+@Deprecated
 public class BabyEntityManager {
 
     private final ITaskRepository repository;

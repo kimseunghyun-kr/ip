@@ -20,6 +20,14 @@ import lombok.Setter;
 import service.dao.TaskUpdateDao;
 
 
+/**
+ * Controller for handling task updates via a dialog interface.
+ * <p>
+ * This class manages the user interface elements for modifying task details
+ * such as name, type, and relevant dates. It ensures that only valid
+ * modifications are applied before updating the task in the system.
+ * </p>
+ */
 public class TaskUpdateDialogController {
     @Setter
     private static ITaskController taskController;
@@ -34,11 +42,20 @@ public class TaskUpdateDialogController {
     private int taskId;
     private Task originalTask;
 
+    /**
+     * Initializes the task update dialog.
+     * Populates the task type combo box and sets up event listeners.
+     */
     public void initialize() {
         taskTypeComboBox.setItems(FXCollections.observableArrayList("Event", "Deadline", "ToDo"));
         taskTypeComboBox.setOnAction(event -> updateVisibleFields());
     }
 
+    /**
+     * Sets the task ID and loads the corresponding task data for editing.
+     *
+     * @param taskId The ID of the task to be updated.
+     */
     public void setTaskId(int taskId) {
         this.taskId = taskId;
         this.originalTask = (Task) taskController.findByOrder(taskId).getData();
@@ -52,6 +69,11 @@ public class TaskUpdateDialogController {
         populateFields(originalTask);
     }
 
+    /**
+     * Populates the date fields based on the task type.
+     *
+     * @param task The task whose details are to be populated.
+     */
     private void populateFields(Task task) {
         resetFields();
 
@@ -65,6 +87,9 @@ public class TaskUpdateDialogController {
         updateVisibleFields();
     }
 
+    /**
+     * Updates the visibility of date fields based on the selected task type.
+     */
     private void updateVisibleFields() {
         String selectedType = taskTypeComboBox.getValue();
         resetFields();
@@ -77,6 +102,9 @@ public class TaskUpdateDialogController {
         }
     }
 
+    /**
+     * Resets all date fields to be invisible and clears their values.
+     */
     private void resetFields() {
         startDatePicker.setVisible(false);
         endDatePicker.setVisible(false);
@@ -87,6 +115,9 @@ public class TaskUpdateDialogController {
         dueDatePicker.setValue(null);
     }
 
+    /**
+     * Handles the save button click event by updating the task with modified details.
+     */
     @FXML
     private void handleSave() {
         if (originalTask == null) {
@@ -99,6 +130,11 @@ public class TaskUpdateDialogController {
         closeDialog();
     }
 
+    /**
+     * Constructs a {@link TaskUpdateDao} object with updated task details.
+     *
+     * @return The built {@code TaskUpdateDao} containing updated task information.
+     */
     private TaskUpdateDao buildTaskUpdateDao() {
         return TaskUpdateDao.builder()
                 .taskType(getUpdatedTaskType())
@@ -109,16 +145,31 @@ public class TaskUpdateDialogController {
                 .build();
     }
 
+    /**
+     * Determines if the task type has been modified.
+     *
+     * @return The updated task type, or {@code null} if unchanged.
+     */
     private String getUpdatedTaskType() {
         String selectedType = taskTypeComboBox.getValue();
         String currentType = getTaskType(originalTask).name();
         return !Objects.equals(selectedType, currentType) ? selectedType : null;
     }
 
+    /**
+     * Determines if the task name has been modified.
+     *
+     * @return The updated task name, or {@code null} if unchanged.
+     */
     private String getUpdatedName() {
         return !Objects.equals(nameField.getText(), originalTask.getName()) ? nameField.getText() : null;
     }
 
+    /**
+     * Gets the updated start date-time if modified.
+     *
+     * @return The new start date-time, or {@code null} if unchanged.
+     */
     private LocalDateTime getUpdatedStartDateTime() {
         if (originalTask instanceof Events && startDatePicker.getValue() != null) {
             return ((Events) originalTask).getEndby();
@@ -129,6 +180,11 @@ public class TaskUpdateDialogController {
         }
     }
 
+    /**
+     * Gets the updated end date-time if modified.
+     *
+     * @return The new end date-time, or {@code null} if unchanged.
+     */
     private LocalDateTime getUpdatedEndDateTime() {
         if (originalTask instanceof Events && endDatePicker.getValue() != null) {
             return ((Events) originalTask).getEndby();
@@ -139,6 +195,11 @@ public class TaskUpdateDialogController {
         }
     }
 
+    /**
+     * Gets the updated due date-time if modified.
+     *
+     * @return The new due date-time, or {@code null} if unchanged.
+     */
     private LocalDateTime getUpdatedDueDateTime() {
         if (originalTask instanceof DeadLine && dueDatePicker.getValue() != null) {
             return ((DeadLine) originalTask).getDueby();
@@ -149,6 +210,12 @@ public class TaskUpdateDialogController {
         }
     }
 
+    /**
+     * Retrieves the task type based on the given task instance.
+     *
+     * @param task The task whose type is to be determined.
+     * @return The corresponding {@link TaskType}, or {@code null} if unrecognized.
+     */
     private TaskType getTaskType(Task task) {
         if (task instanceof Events) {
             return TaskType.EVENT;
@@ -162,6 +229,9 @@ public class TaskUpdateDialogController {
         return null;
     }
 
+    /**
+     * Closes the update task dialog window.
+     */
     private void closeDialog() {
         Stage stage = (Stage) saveButton.getScene().getWindow();
         stage.close();
