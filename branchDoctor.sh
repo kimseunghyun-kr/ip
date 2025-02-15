@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Number of commits to modify (default: 5)
-NUM_COMMITS=${0:-5}
+NUM_COMMITS=${1:-5}
 
 echo "Starting interactive rebase for the last $NUM_COMMITS commits..."
 
