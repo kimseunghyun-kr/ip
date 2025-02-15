@@ -162,7 +162,8 @@ public class TaskUpdateDialogController {
      * @return The updated task name, or {@code null} if unchanged.
      */
     private String getUpdatedName() {
-        return !Objects.equals(nameField.getText(), originalTask.getName()) ? nameField.getText() : null;
+        return !Objects.equals(nameField.getText(), originalTask.getName())
+                ? nameField.getText() : originalTask.getName();
     }
 
     /**
@@ -171,7 +172,7 @@ public class TaskUpdateDialogController {
      * @return The new start date-time, or {@code null} if unchanged.
      */
     private LocalDateTime getUpdatedStartDateTime() {
-        if (originalTask instanceof Events && startDatePicker.getValue() != null) {
+        if (originalTask instanceof Events && startDatePicker.getValue() == null) {
             return ((Events) originalTask).getEndby();
         } else if (taskTypeComboBox.getValue().equalsIgnoreCase(TaskType.EVENT.name())) {
             return startDatePicker.getValue().atStartOfDay();
@@ -186,7 +187,7 @@ public class TaskUpdateDialogController {
      * @return The new end date-time, or {@code null} if unchanged.
      */
     private LocalDateTime getUpdatedEndDateTime() {
-        if (originalTask instanceof Events && endDatePicker.getValue() != null) {
+        if (originalTask instanceof Events && endDatePicker.getValue() == null) {
             return ((Events) originalTask).getEndby();
         } else if (taskTypeComboBox.getValue().equalsIgnoreCase(TaskType.EVENT.name())) {
             return endDatePicker.getValue().atStartOfDay();
@@ -201,7 +202,7 @@ public class TaskUpdateDialogController {
      * @return The new due date-time, or {@code null} if unchanged.
      */
     private LocalDateTime getUpdatedDueDateTime() {
-        if (originalTask instanceof DeadLine && dueDatePicker.getValue() != null) {
+        if (originalTask instanceof DeadLine && dueDatePicker.getValue() == null) {
             return ((DeadLine) originalTask).getDueby();
         } else if (taskTypeComboBox.getValue().equalsIgnoreCase(TaskType.DEADLINE.name())) {
             return dueDatePicker.getValue().atStartOfDay();
