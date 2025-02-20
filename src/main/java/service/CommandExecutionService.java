@@ -2,9 +2,12 @@ package service;
 
 import static entity.command.UpdateCommand.INTERACTIVEMODESTRING;
 
+import java.lang.reflect.InvocationTargetException;
+
 import controller.ControllerResponse;
 import entity.command.TerminationCommand;
 import entity.command.UpdateCommand;
+import exceptions.UserFacingException;
 import service.dao.CommandDao;
 import service.interactiveexecutionservice.InteractiveExecutionService;
 
@@ -49,18 +52,21 @@ public class CommandExecutionService {
         if (interactiveExecutionService.isActiveSession()) {
             return interactiveExecutionService.handleInteractiveUpdate(input);
         }
-        CommandDao command = actionHandler.resolveAction(input);
-        ControllerResponse<?> response = command.execute();
+        try {
+            CommandDao command = actionHandler.resolveAction(input);
+            ControllerResponse<?> response = command.execute();
+            if (command.getCommand() instanceof UpdateCommand && response.getMessage().equals(INTERACTIVEMODESTRING)) {
+                interactiveExecutionService.startInteractiveUpdate(command.getParams());
+                return "Interactive update session started";
+            }
 
-        if (command.getCommand() instanceof UpdateCommand && response.getMessage().equals(INTERACTIVEMODESTRING)) {
-            interactiveExecutionService.startInteractiveUpdate(command.getParams());
-            return "Interactive update session started";
+            if (command.getCommand() instanceof TerminationCommand) {
+                return TERMSIG;
+            }
+
+            return response.toString();
+        } catch (UserFacingException | NumberFormatException e) {
+            return e.getMessage();
         }
-
-        if (command.getCommand() instanceof TerminationCommand) {
-            return TERMSIG;
-        }
-
-        return response.toString();
     }
 }
