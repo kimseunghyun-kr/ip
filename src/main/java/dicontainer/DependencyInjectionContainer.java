@@ -216,7 +216,7 @@ public class DependencyInjectionContainer {
     // ========== Dependency Graph Building ==========
 
     /**
-     * Build or update the dependency graph for the given type.
+     * Builds or update the dependency graph for the given type.
      * If it's an interface, we look up its chosen implementation.
      *
      * @param type The class whose dependencies need to be tracked.
@@ -318,7 +318,7 @@ public class DependencyInjectionContainer {
     // ========== Initialization & Topological Sort ==========
 
     /**
-     * Perform a topological sort of the entire dependency graph, then instantiate each in order.
+     * Performs a topological sort of the entire dependency graph, then instantiate each in order.
      */
     public void initialize() {
         if (isInitialized) {

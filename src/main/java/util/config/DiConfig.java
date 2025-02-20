@@ -44,16 +44,16 @@ public class DiConfig {
      * Registers configurations and dependencies in the given dependency injection container.
      * <p>
      * This method sets up interceptors, repositories, services, and controllers.
-     * Depending on the {@code cli} flag, it registers either CLI or GUI-specific components.
+     * Depending on the {@code isCli} flag, it registers either CLI or GUI-specific components.
      * </p>
      *
      * @param container The dependency injection container where components are registered.
      * @param logPath   The path for logging events.
      * @param filePath  The path for file-backed task storage.
-     * @param cli       A flag indicating whether the application runs in CLI mode.
+     * @param isCli       A flag indicating whether the application runs in CLI mode.
      */
     public static void registerConfig(DependencyInjectionContainer container, Path logPath,
-                                      Path filePath, boolean cli) {
+                                      Path filePath, boolean isCli) {
         // Register interceptors
         container.registerInterceptor(Log.class, new LoggingInterceptor());
         container.registerInterceptor(Transactional.class, new TransactionalInterceptor());
@@ -67,7 +67,7 @@ public class DiConfig {
         container.register(ITaskRepository.class);
         container.register(ITaskController.class, TaskController.class);
         container.register(CommandExecutionService.class);
-        if (cli) {
+        if (isCli) {
             container.register(IDispatcher.class, CliDispatcher.class);
             container.register(IBotRunTime.class); // Register BotRunTime
             container.register(InteractiveExecutionService.class, CliInteractiveExecutionService.class);

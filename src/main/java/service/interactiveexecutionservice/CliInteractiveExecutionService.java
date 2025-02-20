@@ -9,7 +9,7 @@ import java.util.Scanner;
 public class CliInteractiveExecutionService implements InteractiveExecutionService {
     private final Scanner scanner = new Scanner(System.in);
     private int taskId;
-    private boolean activeSession = false;
+    private boolean isActiveSession = false;
 
     @Override
     public String startInteractiveUpdate(List<String> parameters) {
@@ -19,7 +19,7 @@ public class CliInteractiveExecutionService implements InteractiveExecutionServi
 
         try {
             this.taskId = Integer.parseInt(parameters.get(0));
-            activeSession = true;
+            isActiveSession = true;
             return "Interactive update started for Task " + taskId + ". Enter properties in `property:value` format.";
         } catch (NumberFormatException e) {
             return "Error: Invalid task ID.";
@@ -28,12 +28,12 @@ public class CliInteractiveExecutionService implements InteractiveExecutionServi
 
     @Override
     public String handleInteractiveUpdate(String input) {
-        if (!activeSession) {
+        if (!isActiveSession) {
             return "Error: No active interactive update session.";
         }
 
         if ("done".equalsIgnoreCase(input)) {
-            activeSession = false;
+            isActiveSession = false;
             return "Interactive update for Task " + taskId + " completed.";
         }
 
@@ -53,7 +53,7 @@ public class CliInteractiveExecutionService implements InteractiveExecutionServi
 
     @Override
     public boolean isActiveSession() {
-        return this.activeSession;
+        return this.isActiveSession;
     }
 }
 

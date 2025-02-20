@@ -16,7 +16,7 @@ import util.config.FxmlStaticSetterInjectionConfig;
 public class Spring {
 
     /**
-     * The main method to start the application.
+     * Provides entrypoint to start the application.
      *
      * @param args command-line arguments passed during application startup.
      */
