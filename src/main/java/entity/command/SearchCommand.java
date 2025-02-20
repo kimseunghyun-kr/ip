@@ -45,30 +45,25 @@ public class SearchCommand implements Command {
             return searchEventDates(parameters, val1);
 
 
-        } else if (parameters.size() == 2) {
-            return taskController.searchByKeyword(parameters.get(1));
+        } else if (parameters.size() == 1) {
+            return taskController.searchByKeyword(parameters.get(0));
         }
 
         throw new UserFacingException("INVALID SEARCH TERM");
     }
 
     private ControllerResponse<String> searchEventDates(List<String> parameters, TaskType val1) {
-        if (val1.equals(TaskType.EVENT) && parameters.size() == 4) {
-            if (parameters.get(2).equalsIgnoreCase("nil")) {
-                LocalDateTime val3 = DateTimeUtils.parseDateOrDateTime(parameters.get(3));
-                return taskController.searchByDate(TaskType.EVENT, null, val3);
-            }
-            LocalDateTime val2 = DateTimeUtils.parseDateOrDateTime(parameters.get(2));
-            LocalDateTime val3 = DateTimeUtils.parseDateOrDateTime(parameters.get(3));
+        LocalDateTime val2 = parameters.get(2).equalsIgnoreCase("null") ? null
+                : DateTimeUtils.parseDateOrDateTime(parameters.get(2));
+        LocalDateTime val3 = parameters.size() < 4 || parameters.get(3).equalsIgnoreCase("null") ? null
+                : DateTimeUtils.parseDateOrDateTime(parameters.get(3));
+
+        if (val1.equals(TaskType.EVENT)) {
             return taskController.searchByDate(TaskType.EVENT, val2, val3);
-        } else if (val1.equals(TaskType.EVENT) && parameters.size() == 3) {
-            LocalDateTime val2 = DateTimeUtils.parseDateOrDateTime(parameters.get(2));
-            return taskController.searchByDate(TaskType.EVENT, val2, null);
-        } else if (val1.equals(TaskType.DEADLINE) && parameters.size() == 4) {
-            LocalDateTime val3 = DateTimeUtils.parseDateOrDateTime(parameters.get(3));
-            return taskController.searchByDate(TaskType.DEADLINE, val3, null);
+        } else if (val1.equals(TaskType.DEADLINE)) {
+            return taskController.searchByDate(TaskType.DEADLINE, val2, val3);
         }
         throw new UserFacingException("Date search term requires at least two parameters \n"
-                + "in the format search date <event/deadline> <null/yyyy-mm-dd> <null/yyyy-mm-dd>");
+                + "in the format search date <event/deadline> from::<null/yyyy-mm-dd> until::<null/yyyy-mm-dd>");
     }
 }

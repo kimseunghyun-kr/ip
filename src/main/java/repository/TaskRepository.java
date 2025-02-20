@@ -95,11 +95,15 @@ public class TaskRepository implements ITaskRepository {
                 .filter(task -> type.equals(TaskType.fromTask(task))) // Filter by type first
                 .filter(task -> {
                     if (task instanceof Events events) {
-                        boolean afterFrom = (from == null || events.getStartat().isAfter(from));
+                        boolean afterFrom = (from == null || events.getStartat().isAfter(from)
+                                || events.getStartat().isBefore(from));
                         boolean beforeTo = (to == null || events.getEndby().isBefore(to));
                         return afterFrom && beforeTo;
                     } else if (task instanceof DeadLine deadLine) {
-                        return (to == null || deadLine.getDueby().isBefore(to));
+                        boolean afterFrom = (from == null || deadLine.getDueby().isAfter(from)
+                                || deadLine.getDueby().isEqual(from));
+                        boolean beforeTo = (to == null || deadLine.getDueby().isBefore(to));
+                        return afterFrom && beforeTo;
                     }
                     return false;
                 })

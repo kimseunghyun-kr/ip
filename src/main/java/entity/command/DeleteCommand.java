@@ -26,7 +26,12 @@ public class DeleteCommand implements Command {
         if (parameters.isEmpty()) {
             throw new UserFacingException("Delete command requires one parameter - size");
         }
-        int taskId = Integer.parseInt(parameters.get(0));
-        return taskController.deleteTask(taskId);
+        try {
+            int taskId = Integer.parseInt(parameters.get(0));
+            return taskController.deleteTask(taskId);
+        } catch (NumberFormatException e) {
+            throw new UserFacingException("Delete command requires only one integer - size");
+        }
+
     }
 }

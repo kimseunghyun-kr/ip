@@ -30,7 +30,6 @@ public class CommandMapper {
 
         COMMAND_MAPPINGS.put("todo", Actions.ADD);
         COMMAND_MAPPINGS.put("deadline", Actions.ADD);
-        COMMAND_MAPPINGS.put("events", Actions.ADD);
         COMMAND_MAPPINGS.put("event", Actions.ADD);
 
         COMMAND_MAPPINGS.put("mark", Actions.MARK);

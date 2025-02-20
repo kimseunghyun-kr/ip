@@ -19,7 +19,6 @@ import mocks.MockTaskCoordinatorRepositoryService;
 import mocks.MockTaskRepository;
 
 public class TaskServiceTest {
-    private ITaskController taskController;
     private TaskService taskService;
     private MockTaskRepository mockTaskRepository;
     private MockTaskCoordinatorRepositoryService mockTaskCoordinatorRepositoryService;
@@ -29,7 +28,6 @@ public class TaskServiceTest {
         mockTaskRepository = new MockTaskRepository();
         mockTaskCoordinatorRepositoryService = new MockTaskCoordinatorRepositoryService(mockTaskRepository);
         taskService = new TaskService(mockTaskCoordinatorRepositoryService, mockTaskRepository);
-        taskController = new MockTaskController();
     }
 
     @Test
@@ -40,7 +38,7 @@ public class TaskServiceTest {
 
         // WHEN
         taskService.addTask(new ArrayList<>(List.of("TODO", "Task")));
-        String tasks = taskController.getAllTasks().getMessage();
+        List<Task> tasks = taskService.getAllTasks();
 
         // THEN
         assertNotNull(tasks);
@@ -53,7 +51,6 @@ public class TaskServiceTest {
     void testDeleteTask() {
         // GIVEN
         taskService.addTask(new ArrayList<>(List.of("TODO", "Task")));
-        String tasks = taskController.getAllTasks().getMessage();
 
         // WHEN
         taskService.deleteTask(1);
@@ -72,10 +69,10 @@ public class TaskServiceTest {
         mockTaskRepository.save(task2);
 
         // WHEN
-        String results = taskController.searchByKeyword("Important").getMessage();
+        List<Task> results = taskService.searchByKeyword("Important");
 
         // THEN
-        assertTrue(results.contains(task1.toString()));
+        assertTrue(results.contains(task1));
     }
 
     @Test
@@ -88,11 +85,11 @@ public class TaskServiceTest {
         mockTaskRepository.save(task2);
 
         // WHEN
-        String tasks = taskController.getAllTasks().getMessage();
+        List<Task> tasks = taskService.getAllTasks();
 
         // THEN
-        assertTrue(tasks.contains(task1.toString()));
-        assertTrue(tasks.contains(task2.toString()));
+        assertTrue(tasks.contains(task1));
+        assertTrue(tasks.contains(task2));
     }
 
     @Test
