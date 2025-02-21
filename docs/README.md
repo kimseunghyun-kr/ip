@@ -1,7 +1,9 @@
 # Spring - A JavaFX Chatbot Todo Tracker
+<img src="./UI.png" alt="UI">
 
 ## Overview
 Spring is a JavaFX-based chatbot application designed for efficient task and event tracking. It includes advanced features such as:
+
 - **Autosave** to ensure your data is always preserved.
 - **Dependency Injection** for modularity and testability.
 - **Aspect-Oriented Programming (AOP)** for logging and cross-cutting concerns.
@@ -24,37 +26,37 @@ Ensure you have:
 ## Commands Guide
 
 ### Searching for Tasks
-| Command | Description |
-|---------|-------------|
-| `find homework` | Searches for tasks containing the keyword 'homework'. |
-| `find date <deadline/event> <to :: YYYY-MM-DD> <from :: YYYY-MM-DD>` | Searches tasks/events within a specified date range. |
-| `find UUID <UUID>` | Searches a task by its UUID and returns its order. |
+| Command                                                              | Description                                           |
+|----------------------------------------------------------------------|-------------------------------------------------------|
+| `find homework`                                                      | Searches for tasks containing the keyword 'homework'. |
+| `find date <deadline/event> <to :: YYYY-MM-DD> <from :: YYYY-MM-DD>` | Searches tasks/events within a specified date range.  |
+| `find UUID <UUID>`                                                   | Searches a task by its UUID and returns its order.    |
 
 ### Adding Tasks
-| Command | Description |
-|---------|-------------|
-| `todo <name>` | Adds a new to-do task with the given name. |
-| `deadline <name> <dueby :: YYYY-MM-DD>` | Adds a deadline task with a specified due date. |
-| `event <name> <startfrom :: YYYY-MM-DD> <endBy :: YYYY-MM-DD>` | Adds an event with start and end dates. |
+| Command                                                        | Description                                     |
+|----------------------------------------------------------------|-------------------------------------------------|
+| `todo <name>`                                                  | Adds a new to-do task with the given name.      |
+| `deadline <name> <dueby :: YYYY-MM-DD>`                        | Adds a deadline task with a specified due date. |
+| `event <name> <startfrom :: YYYY-MM-DD> <endBy :: YYYY-MM-DD>` | Adds an event with start and end dates.         |
 
 ### Deleting Tasks
-| Command | Description |
-|---------|-------------|
-| `clear` | Deletes all tasks. |
+| Command          | Description                                  |
+|------------------|----------------------------------------------|
+| `clear`          | Deletes all tasks.                           |
 | `delete <order>` | Deletes a specific task by its order number. |
 
 ### Marking Task Completion
-| Command | Description |
-|---------|-------------|
-| `mark <order>` | Marks a task as completed. |
-| `unmark <order>` | Unmarks a completed task. |
+| Command          | Description                |
+|------------------|----------------------------|
+| `mark <order>`   | Marks a task as completed. |
+| `unmark <order>` | Unmarks a completed task.  |
 
 ### Exiting the Application
-| Command | Description |
-|---------|-------------|
-| `exit` | Closes the application. |
-| `quit` | Alternative command to exit the application. |
-| `bye` | Another way to close the application. |
+| Command | Description                                  |
+|---------|----------------------------------------------|
+| `exit`  | Closes the application.                      |
+| `quit`  | Alternative command to exit the application. |
+| `bye`   | Another way to close the application.        |
 
 ## Features & Design
 ### 1. **Autosave**
