@@ -26,6 +26,7 @@ Ensure you have:
 ## Commands Guide
 
 ### Searching for Tasks
+
 | Command                                                              | Description                                           |
 |----------------------------------------------------------------------|-------------------------------------------------------|
 | `find homework`                                                      | Searches for tasks containing the keyword 'homework'. |
@@ -33,6 +34,7 @@ Ensure you have:
 | `find UUID <UUID>`                                                   | Searches a task by its UUID and returns its order.    |
 
 ### Adding Tasks
+
 | Command                                                        | Description                                     |
 |----------------------------------------------------------------|-------------------------------------------------|
 | `todo <name>`                                                  | Adds a new to-do task with the given name.      |
@@ -40,18 +42,21 @@ Ensure you have:
 | `event <name> <startfrom :: YYYY-MM-DD> <endBy :: YYYY-MM-DD>` | Adds an event with start and end dates.         |
 
 ### Deleting Tasks
+
 | Command          | Description                                  |
 |------------------|----------------------------------------------|
 | `clear`          | Deletes all tasks.                           |
 | `delete <order>` | Deletes a specific task by its order number. |
 
 ### Marking Task Completion
+
 | Command          | Description                |
 |------------------|----------------------------|
 | `mark <order>`   | Marks a task as completed. |
 | `unmark <order>` | Unmarks a completed task.  |
 
 ### Exiting the Application
+
 | Command | Description                                  |
 |---------|----------------------------------------------|
 | `exit`  | Closes the application.                      |
