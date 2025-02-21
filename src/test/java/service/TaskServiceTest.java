@@ -3,10 +3,12 @@ package service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -15,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import controller.ITaskController;
 import entity.MockTaskController;
 import entity.tasks.Task;
+import exceptions.UserFacingException;
 import mocks.MockTaskCoordinatorRepositoryService;
 import mocks.MockTaskRepository;
 
@@ -60,7 +63,7 @@ public class TaskServiceTest {
     }
 
     @Test
-    @DisplayName("GIVEN a list of tasks WHEN searched THEN matching tasks should be returned")
+    @DisplayName("GIVEN a list of tasks WHEN searched name THEN matching tasks should be returned")
     void testSearchTask() {
         // GIVEN
         Task task1 = new Task("Important Task");
@@ -73,6 +76,70 @@ public class TaskServiceTest {
 
         // THEN
         assertTrue(results.contains(task1));
+    }
+
+    @Test
+    @DisplayName("GIVEN a list of tasks WHEN searched name not present THEN matching tasks should return EMPTY")
+    void testSearchTaskEmpty() {
+        // GIVEN
+        Task task1 = new Task("Important Task");
+        Task task2 = new Task("Casual Task");
+        mockTaskRepository.save(task1);
+        mockTaskRepository.save(task2);
+
+        // WHEN
+        List<Task> results = taskService.searchByKeyword("Intermediate");
+        System.out.println(results);
+
+        // THEN
+        assertTrue(results.isEmpty());
+    }
+
+    @Test
+    @DisplayName("GIVEN a list of tasks WHEN searched UUID THEN matching tasks should return order of insertion")
+    void testSearchTaskUUID() {
+        // GIVEN
+        Task task1 = new Task("Important Task");
+        Task task2 = new Task("Casual Task");
+        mockTaskRepository.save(task1);
+        mockTaskRepository.save(task2);
+
+        // WHEN
+        int result1 = taskService.searchOrder(String.valueOf(task1.getId()));
+        int result2 = taskService.searchOrder(String.valueOf(task2.getId()));
+
+        // THEN
+        assertEquals(0, result1);
+        assertEquals(1, result2);
+    }
+
+    @Test
+    @DisplayName("GIVEN a list of tasks WHEN searched UUID invalid THEN throw exception")
+    void testSearchTaskUUIDExcept() {
+        // GIVEN
+        Task task1 = new Task("Important Task");
+        Task task2 = new Task("Casual Task");
+        mockTaskRepository.save(task1);
+        mockTaskRepository.save(task2);
+
+        // WHEN // THEN
+        assertThrows(UserFacingException.class, ()->taskService.searchOrder("test string"));
+    }
+
+    @Test
+    @DisplayName("GIVEN a list of tasks WHEN searched UUID not present THEN return -1")
+    void testSearchTaskUUIDEmpty() {
+        // GIVEN
+        Task task1 = new Task("Important Task");
+        Task task2 = new Task("Casual Task");
+        mockTaskRepository.save(task1);
+        mockTaskRepository.save(task2);
+
+        // WHEN
+        int result1 = taskService.searchOrder(String.valueOf(UUID.randomUUID()));
+
+        // THEN
+        assertEquals(-1, result1);
     }
 
     @Test

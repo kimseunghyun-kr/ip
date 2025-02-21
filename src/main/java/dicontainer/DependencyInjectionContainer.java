@@ -1,16 +1,15 @@
 package dicontainer;
 
-import java.io.File;
-import java.io.IOException;
+import static dicontainer.dependencygraphutils.DependencyGraphBuilderUtils.findImplementations;
+import static dicontainer.dependencygraphutils.DependencyGraphBuilderUtils.getConcreteClass;
+import static dicontainer.dependencygraphutils.TopologicalSortUtils.topologicalSortDfs;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -105,8 +104,6 @@ public class DependencyInjectionContainer {
 
         registrations.put(interfaceType, concreteType);
         storeConstructorArgs(concreteType, args);
-
-
     }
 
     /**
@@ -162,22 +159,6 @@ public class DependencyInjectionContainer {
         }
     }
 
-    private static Class<?> getConcreteClass(Class<?> type, Set<Class<?>> impls) {
-        Class<?> primary = null;
-        for (Class<?> c : impls) {
-            if (c.isAnnotationPresent(ProxyEnabled.class)) {
-                primary = c;
-                break;
-            }
-        }
-        if (primary == null) {
-            throw new RuntimeException(
-                    "Multiple implementations found for " + type.getName()
-                            + " and none is @ProxyEnabled to pick as primary");
-        }
-        return primary;
-    }
-
     /**
      * Stores constructor argument overrides for a registered class.
      *
@@ -214,7 +195,6 @@ public class DependencyInjectionContainer {
     }
 
     // ========== Dependency Graph Building ==========
-
     /**
      * Builds or update the dependency graph for the given type.
      * If it's an interface, we look up its chosen implementation.
@@ -258,65 +238,7 @@ public class DependencyInjectionContainer {
         dependencyGraph.put(type, deps);
     }
 
-    /**
-     * Finds all concrete classes that implement a given interface in the same package.
-     *
-     * @param iface the interface class whose concrete class designations have to be found
-     */
-    private Set<Class<?>> findImplementations(Class<?> iface) {
-        Set<Class<?>> results = new HashSet<>();
-        String pkgName = iface.getPackageName();
-        String path = pkgName.replace('.', '/');
-        ClassLoader cl = Thread.currentThread().getContextClassLoader();
-
-        try {
-            Enumeration<URL> resources = cl.getResources(path);
-            while (resources.hasMoreElements()) {
-                URL resource = resources.nextElement();
-                File dir = new File(resource.getFile());
-                if (dir.exists()) {
-                    results.addAll(findClasses(dir, pkgName, iface));
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return results;
-    }
-
-    private Set<Class<?>> findClasses(File dir, String pkgName, Class<?> iface) {
-        Set<Class<?>> found = new HashSet<>();
-        if (!dir.exists()) {
-            return found;
-        }
-        File[] files = dir.listFiles();
-        if (files == null) {
-            return found;
-        }
-
-        for (File f : files) {
-            if (f.isDirectory()) {
-                found.addAll(findClasses(f, pkgName + "." + f.getName(), iface));
-            } else if (f.getName().endsWith(".class")) {
-                String clsName = pkgName + "." + f.getName().replace(".class", "");
-                try {
-                    Class<?> c = Class.forName(clsName);
-                    if (iface.isAssignableFrom(c)
-                            && !c.isInterface()
-                            && !Modifier.isAbstract(c.getModifiers())) {
-                        found.add(c);
-                    }
-                } catch (ClassNotFoundException e) {
-                    // ignore
-                }
-            }
-        }
-
-        return found;
-    }
-
     // ========== Initialization & Topological Sort ==========
-
     /**
      * Performs a topological sort of the entire dependency graph, then instantiate each in order.
      */
@@ -337,7 +259,7 @@ public class DependencyInjectionContainer {
 
         // 3) Build instances in that order
         for (Class<?> type : topoOrder) {
-            // We skip interfaces that have no real constructor
+            // We skip interfaces that have no real constructor,
             // but we ensure the impl is built. For a plain class, we build it if not built yet.
             if (type.isInterface() || Modifier.isAbstract(type.getModifiers())) {
                 // The real instance will be created when its impl class is built.
@@ -348,7 +270,6 @@ public class DependencyInjectionContainer {
                 createInstanceFor(type);
             }
         }
-
         // 4) Also ensure any interface not yet in 'instances' is associated with the same proxied instance
         //    if it maps to a known implementation
         for (Map.Entry<Class<?>, Class<?>> e : registrations.entrySet()) {
@@ -359,69 +280,10 @@ public class DependencyInjectionContainer {
                 instances.put(intfOrClass, instances.get(impl));
             }
         }
-
         isInitialized = true;
     }
 
-    /**
-     * Perform a Kahn's Algorithm topological sort to detect cycles and produce an order.
-     */
-    private List<Class<?>> topologicalSortDfs(Set<Class<?>> nodes,
-                                              Map<Class<?>, Set<Class<?>>> graph) {
-        // 'graph[A]' = set of classes that A depends on
-
-        List<Class<?>> sortedList = new ArrayList<>();
-        Set<Class<?>> visited = new HashSet<>(); // permanent mark
-        Set<Class<?>> visiting = new HashSet<>(); // temporary mark (detect cycles)
-
-        for (Class<?> node : nodes) {
-            if (!visited.contains(node)) {
-                dfsVisit(node, graph, visited, visiting, sortedList);
-            }
-        }
-        // The result is in "reverse" topological order if you append after visiting.
-        // But we want dependencies first, so we can either reverse at the end or insert at the front.
-        // Let's reverse at the end:
-        Collections.reverse(sortedList);
-        return sortedList;
-    }
-
-    private void dfsVisit(Class<?> current,
-                          Map<Class<?>, Set<Class<?>>> graph,
-                          Set<Class<?>> visited,
-                          Set<Class<?>> visiting,
-                          List<Class<?>> sortedList) {
-        if (visiting.contains(current)) {
-            // We found a back edge => cycle
-            throw new RuntimeException("Cycle detected in dependency graph at: " + current.getName());
-        }
-        if (visited.contains(current)) {
-            // Already fully processed this node
-            return;
-        }
-
-        // Mark 'current' as in progress
-        visiting.add(current);
-
-        // Visit all dependencies (the classes that 'current' depends on)
-        Set<Class<?>> dependencies = graph.getOrDefault(current, Collections.emptySet());
-        for (Class<?> dep : dependencies) {
-            if (!visited.contains(dep)) {
-                dfsVisit(dep, graph, visited, visiting, sortedList);
-            }
-        }
-
-        // Mark 'current' as fully visited
-        visiting.remove(current);
-        visited.add(current);
-
-        // Add to the result list. We'll reverse later.
-        sortedList.add(current);
-    }
-
-
     // ========== Instantiation & AOP Proxy Wrapping ==========
-
     /**
      * Create (and store) a single instance for the given concrete class, respecting constructor args,
      * and possibly wrapping with a JDK proxy if needed.

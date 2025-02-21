@@ -112,7 +112,11 @@ public class TaskRepository implements ITaskRepository {
 
     @Override
     public int findOrder(UUID uuid) {
-        return storageList.indexOf(storageMap.get(uuid));
+        int k = storageList.indexOf(storageMap.get(uuid));
+        if (k == -1) {
+            throw new UserFacingException("No task found for uuid: " + uuid);
+        }
+        return k;
     }
 
     @Override

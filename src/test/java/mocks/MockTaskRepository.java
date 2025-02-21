@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import entity.TaskType;
 import entity.tasks.Task;
@@ -70,12 +71,13 @@ public class MockTaskRepository implements ITaskRepository, IFileBackedTaskRepos
 
     @Override
     public int findOrder(UUID uuid) {
-        return 0;
+        return temptaskStore.stream().map(Task::getId).toList().indexOf(uuid);
     }
 
     @Override
     public List<Task> findTaskWithKeyword(String keyword) {
-        return temptaskStore;
+        return temptaskStore.stream().filter(task -> task.getName().contains(keyword))
+                .collect(Collectors.toList());
     }
 
     @Override
