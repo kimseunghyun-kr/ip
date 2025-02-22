@@ -58,10 +58,10 @@ Ensure you have:
 
 ### Marking Task Completion
 
-| Command                             | Description                                         |
-|-------------------------------------|-----------------------------------------------------|
-| `update <order>`                    | launches an interactive update window               |
-| `update <order> {<args> : <value>}` | manually assigns update according to args and value | 
+| Command                          | Description                                         |
+|----------------------------------|-----------------------------------------------------|
+| `update <order>`                 | launches an interactive update window               |
+| `update <order> <args>::<value>` | manually assigns update according to args and value | 
 
 ** allowed args : 
 1. tasktype : {todo, deadline, event} (non case sensitive)
@@ -70,12 +70,10 @@ Ensure you have:
 4. start : date
 5. end : date
 
-- note that whenever a tasktype update is commenced via in-chat command, the name must also be provided
+- note that whenever a tasktype update is commenced via in-chat command, the name must be provided
   as it was assumed that whenever a tasktype change is made, the name should also be changed
 - note that when tasktype is changed to deadline, due needs to be provided
 - note that when tasktype is changed to event, start and end both needs to be provided
-
-
 
 ### Exiting the Application
 
@@ -125,6 +123,16 @@ Tasks from <date 1> <date 2>
 Task found at position <position>
 ```
 
+### Updating
+```sh
+> update 2
+Interactive rebase starts
+
+> update <order> <arg1>::<value1> <arg2>::<value2> ....
+updated to :: <result>
+
+```
+
 ### Marking Completion
 ```sh
 > mark 1
@@ -136,6 +144,17 @@ Marked as done: [T][X] Buy_goceries
 > exit
 Bye Bye have a nice day
 ```
+
+## saves
+- automatically done every 30 seconds
+- log replay based save
+- scheduler used to autosave
+- save on exit
+
+## recovery in case of corruption
+- the app internally has a backup system in place.
+- if both the backup file and original file is corrupted, this will cause a total reset.
+- if the backup file survives, the backup file will be used
 
 ## Conclusion
 Spring provides a seamless task management experience with powerful automation and modern Java principles. Enjoy tracking your tasks efficiently!

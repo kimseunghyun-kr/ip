@@ -304,7 +304,7 @@ public class FileBackedTaskRepository extends TaskRepository implements IFileBac
             System.out.println("Backup successfully restored.");
             return true;
 
-        } catch (IOException e) {
+        } catch (IOException | IllegalArgumentException | UserFacingException e) {
             System.err.println("Backup recovery failed.");
             return false;
         }
