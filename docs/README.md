@@ -34,6 +34,7 @@ Ensure you have:
 | `find UUID <UUID>`                                                   | Searches a task by its UUID and returns its order.    |
 
 ### Adding Tasks
+- note that tasks can only be made up of 1 word. for spaces, use underline!
 
 | Command                                                        | Description                                     |
 |----------------------------------------------------------------|-------------------------------------------------|
