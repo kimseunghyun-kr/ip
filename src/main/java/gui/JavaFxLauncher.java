@@ -26,7 +26,7 @@ public class JavaFxLauncher extends Application {
             String css = Objects.requireNonNull(this.getClass().getResource("/css/Stage.css")).toExternalForm();
             scene.getStylesheets().add(css);
             // Window formatting
-            stage.setTitle("Task Manager"); // Set the title of the application
+            stage.setTitle("Spring - Task Manager"); // Set the title of the application
             stage.setResizable(true);
             stage.show();
         } catch (IOException e) {
