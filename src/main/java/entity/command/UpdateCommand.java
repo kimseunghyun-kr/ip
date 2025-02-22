@@ -4,6 +4,7 @@ import java.util.List;
 
 import controller.ControllerResponse;
 import controller.ITaskController;
+import entity.TaskType;
 import entity.tasks.Task;
 import exceptions.UserFacingException;
 import service.dao.TaskUpdateDao;
@@ -101,18 +102,18 @@ public class UpdateCommand implements Command {
      * @throws UserFacingException if required fields are missing for the new task type
      */
     private void validateNewTaskData(TaskUpdateDao updateDao) {
-        switch (updateDao.getTaskType()) {
-        case "Event" -> {
+        switch (TaskType.valueOf(updateDao.getTaskType().toUpperCase())) {
+        case EVENT -> {
             if (updateDao.getName() == null || updateDao.getStartDate() == null || updateDao.getEndDate() == null) {
                 throw new UserFacingException("Event requires name, start date, and end date");
             }
         }
-        case "Deadline" -> {
+        case DEADLINE -> {
             if (updateDao.getName() == null || updateDao.getDueDate() == null) {
                 throw new UserFacingException("Deadline requires name and due date");
             }
         }
-        case "ToDo" -> {
+        case TODO-> {
             if (updateDao.getName() == null) {
                 throw new UserFacingException("ToDo requires a name");
             }

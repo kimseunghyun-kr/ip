@@ -107,6 +107,7 @@ public class TaskEventLogger {
         } catch (IOException e) {
             System.err.println("Error replacing original file with updated file: " + e.getMessage());
         }
+
     }
 
     /**

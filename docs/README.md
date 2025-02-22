@@ -56,6 +56,27 @@ Ensure you have:
 | `mark <order>`   | Marks a task as completed. |
 | `unmark <order>` | Unmarks a completed task.  |
 
+### Marking Task Completion
+
+| Command                             | Description                                         |
+|-------------------------------------|-----------------------------------------------------|
+| `update <order>`                    | launches an interactive update window               |
+| `update <order> {<args> : <value>}` | manually assigns update according to args and value | 
+
+** allowed args : 
+1. tasktype : {todo, deadline, event} (non case sensitive)
+2. name : single word
+3. due : date
+4. start : date
+5. end : date
+
+- note that whenever a tasktype update is commenced via in-chat command, the name must also be provided
+  as it was assumed that whenever a tasktype change is made, the name should also be changed
+- note that when tasktype is changed to deadline, due needs to be provided
+- note that when tasktype is changed to event, start and end both needs to be provided
+
+
+
 ### Exiting the Application
 
 | Command | Description                                  |
@@ -79,32 +100,41 @@ Spring automatically saves tasks after every modification, ensuring data persist
 ## Example Usage
 ### Adding Tasks
 ```sh
-> todo Buy groceries
-Added: [T] Buy groceries
+> todo Buy_groceries
+Task Added Successfully: [T][] Buy_groceries UUID:: <UUID>
 
-> deadline Project submission 2025-02-25
-Added: [D] Project submission (by: 2025-02-25)
+> deadline Project_submission 2025-02-25
+Task Added Successfully: [D][] Project_submission due by: {2025-02-25T<time>} UUID:: <UUID>
 
 > event Seminar 2025-03-01 2025-03-02
-Added: [E] Seminar (from: 2025-03-01 to: 2025-03-02)
+Task Added Successfully: [E][] Seminar starting from :: {2025-03-01T<time>}
+ ending by:: {2025-03-02} UUID:<UUID>
 ```
 
 ### Searching
 ```sh
 > find homework
-Found: [D] Submit homework (by: 2025-02-20)
+Task containing homework: [D][] Submit homework (by: 2025-02-20)
+
+> find date deadline <date 1> <date 2>
+Tasks from <date 1> <date 2>
+[D][] Submit homework (by: 2025-02-20)
+[D][] Submit assignment (by: 2025-02-21)
+
+> find uuid <UUID>
+Task found at position <position>
 ```
 
 ### Marking Completion
 ```sh
 > mark 1
-Marked as done: [T] Buy groceries
+Marked as done: [T][X] Buy_goceries
 ```
 
 ### Exiting
 ```sh
 > exit
-Goodbye! Have a productive day.
+Bye Bye have a nice day
 ```
 
 ## Conclusion

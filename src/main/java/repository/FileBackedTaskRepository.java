@@ -20,6 +20,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import entity.tasks.Task;
+import exceptions.UserFacingException;
 import repository.event.TaskEvent;
 import repository.event.TaskEventLogger;
 import repository.event.TaskEventObject;
@@ -130,6 +131,12 @@ public class FileBackedTaskRepository extends TaskRepository implements IFileBac
         if (expectedListHash == snapshotHashBeforeFlush) {
             System.out.println("Log replay is valid. Applying logs.");
             eventLogger.replayLog(filePath); // Step 4: Apply logs if valid
+            try {
+                backupCurrentFileIfExists();
+            } catch (IOException e) {
+                System.err.println("failed to backup current file: " + e.getMessage());
+                persistAll(); // Step 5: Full write to fix inconsistencies
+            }
         } else {
             System.err.println("Flush detected a drift! Falling back to full persistAll.");
             persistAll(); // Step 5: Full write to fix inconsistencies
@@ -205,16 +212,28 @@ public class FileBackedTaskRepository extends TaskRepository implements IFileBac
         List<Task> taskList = new ArrayList<>();
 
         if (!Files.exists(filePath)) {
-            return returnListOnly ? taskList : null;
+            if (returnListOnly) {
+                return taskList;
+            }
         }
 
         try {
             Map<UUID, Task> taskMap = DataFileUtils.readTasksFromFile(filePath);
             taskList.addAll(taskMap.values());
-        } catch (IOException e) {
+        } catch (IOException | UserFacingException | IllegalArgumentException e) {
             System.err.println("Error reading tasks from file: " + e.getMessage());
             if (!returnListOnly) {
-                attemptBackupRecovery();
+                boolean isBackupSuccess = attemptBackupRecovery();
+                if (!isBackupSuccess) {
+                    try {
+                        Files.delete(filePath);
+                        System.err.println("Corrupted save file deleted to start afresh next run.");
+                    } catch (IOException deleteEx) {
+                        System.err.println("Failed to delete corrupted save file: " + deleteEx.getMessage());
+                    }
+                } else {
+                    return null;
+                }
             }
         }
 
@@ -247,18 +266,25 @@ public class FileBackedTaskRepository extends TaskRepository implements IFileBac
     /**
      * Attempts to recover data from a backup file if the main file is corrupted.
      */
-    private void attemptBackupRecovery() {
+    private boolean attemptBackupRecovery() {
         Path backupPath = Paths.get(filePath.toString() + ".bak");
         if (!Files.exists(backupPath)) {
             System.err.println("No backup file found.");
-            return;
+            return false;
         }
 
         try {
             List<Task> recoveredTasks = new ArrayList<>();
             try (BufferedReader reader = Files.newBufferedReader(backupPath)) {
                 String line;
+                line = reader.readLine();
+                if (!line.equals("[")) {
+                    return false;
+                }
                 while ((line = reader.readLine()) != null) {
+                    if (line.equals("]")) {
+                        break;
+                    }
                     Task task = deserializeTask(line);
                     if (task != null) {
                         recoveredTasks.add(task);
@@ -276,9 +302,11 @@ public class FileBackedTaskRepository extends TaskRepository implements IFileBac
 
             Files.copy(backupPath, filePath, StandardCopyOption.REPLACE_EXISTING);
             System.out.println("Backup successfully restored.");
+            return true;
 
         } catch (IOException e) {
             System.err.println("Backup recovery failed.");
+            return false;
         }
     }
 }
