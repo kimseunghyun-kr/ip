@@ -1,5 +1,5 @@
 # Spring - A JavaFX Chatbot Todo Tracker
-<img src="./UI.png" alt="UI">
+<img src="Ui.png" alt="UI">
 
 ## Overview
 Spring is a JavaFX-based chatbot application designed for efficient task and event tracking. It includes advanced features such as:
