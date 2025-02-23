@@ -291,11 +291,10 @@ public class FileBackedTaskRepository extends TaskRepository implements IFileBac
                     }
                 }
             }
-
-            super.storageList.clear();
-            super.storageMap.clear();
-
             for (Task task : recoveredTasks) {
+                if (super.storageMap.containsKey(task.getId())) {
+                    continue;
+                }
                 super.storageList.add(task);
                 super.storageMap.put(task.getId(), task);
             }
